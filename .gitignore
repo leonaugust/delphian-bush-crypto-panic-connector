@@ -1,1 +1,5 @@
 /.idea/
+/target/
+/crypto-panic-connector.iml
+/offsets/
+/config/custom-connector.properties
