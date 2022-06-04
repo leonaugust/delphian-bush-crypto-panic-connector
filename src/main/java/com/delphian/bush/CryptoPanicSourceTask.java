@@ -4,6 +4,8 @@ import com.delphian.bush.config.CryptoPanicSourceConnectorConfig;
 import com.delphian.bush.dto.CryptoNews;
 import com.delphian.bush.dto.CryptoNewsResponse;
 import com.delphian.bush.dto.NewsSource;
+import com.delphian.bush.schema.CryptoNewsSchema;
+import com.delphian.bush.schema.SourceSchema;
 import com.delphian.bush.util.VersionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.connect.data.Struct;
@@ -19,7 +21,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.delphian.bush.config.CryptoPanicSourceConnectorConfig.*;
-import static com.delphian.bush.schema.CryptoNewsSchema.*;
+import static com.delphian.bush.schema.SourceSchema.SOURCE_SCHEMA;
 import static com.delphian.bush.util.WebUtil.getRestTemplate;
 
 @Slf4j
@@ -74,9 +76,9 @@ public class CryptoPanicSourceTask extends SourceTask {
                 sourceOffset(cryptoNews),
                 config.getString(TOPIC_CONFIG),
                 null,
-                NEWS_KEY_SCHEMA,
+                CryptoNewsSchema.NEWS_KEY_SCHEMA,
                 buildRecordKey(cryptoNews),
-                NEWS_SCHEMA,
+                CryptoNewsSchema.NEWS_SCHEMA,
                 buildRecordValue(cryptoNews),
                 Instant.now().toEpochMilli()
         );
@@ -93,39 +95,39 @@ public class CryptoPanicSourceTask extends SourceTask {
     // do something with pagination and size
     private Map<String, String> sourceOffset(CryptoNews cryptoNews) {
         Map<String, String> map = new HashMap<>();
-        map.put(ID_FIELD, cryptoNews.getId());
+        map.put(CryptoNewsSchema.ID_FIELD, cryptoNews.getId());
         return map;
     }
 
     private Struct buildRecordKey(CryptoNews news){
         // Key Schema
-       return new Struct(NEWS_KEY_SCHEMA)
+       return new Struct(CryptoNewsSchema.NEWS_KEY_SCHEMA)
                 .put(APPLICATION_CONFIG, config.getString(APPLICATION_CONFIG))
-                .put(ID_FIELD, news.getId());
+                .put(CryptoNewsSchema.ID_FIELD, news.getId());
     }
 
-
+//    TODO. Extract variables to global variables.
+//    Add Currencies object setting from News.
     public Struct buildRecordValue(CryptoNews cryptoNews){
         // Issue top level fields
-        Struct valueStruct = new Struct(NEWS_SCHEMA)
-                .put("kind", cryptoNews.getKind())
-                .put("domain", cryptoNews.getDomain())
-                .put("title", cryptoNews.getTitle())
-                .put("published_at", cryptoNews.getPublishedAt())
-                .put("slug", cryptoNews.getSlug())
-                .put("id", cryptoNews.getId())
-                .put("url", cryptoNews.getUrl())
-                .put("created_at", cryptoNews.getCreatedAt())
-                .put("id", cryptoNews.getId());
+        Struct valueStruct = new Struct(CryptoNewsSchema.NEWS_SCHEMA)
+                .put(CryptoNewsSchema.KIND_FIELD, cryptoNews.getKind())
+                .put(CryptoNewsSchema.DOMAIN_FIELD, cryptoNews.getDomain())
+                .put(CryptoNewsSchema.TITLE_FIELD, cryptoNews.getTitle())
+                .put(CryptoNewsSchema.PUBLISHED_AT_FIELD, cryptoNews.getPublishedAt())
+                .put(CryptoNewsSchema.SLUG_FIELD, cryptoNews.getSlug())
+                .put(CryptoNewsSchema.ID_FIELD, cryptoNews.getId())
+                .put(CryptoNewsSchema.URL_FIELD, cryptoNews.getUrl())
+                .put(CryptoNewsSchema.CREATED_AT_FIELD, cryptoNews.getCreatedAt());
 
         NewsSource source = cryptoNews.getSource();
         if (source != null) {
             Struct sourceStruct = new Struct(SOURCE_SCHEMA)
-                    .put("title", source.getTitle())
-                    .put("region", source.getRegion())
-                    .put("domain", source.getDomain())
-                    .put("path", source.getPath());
-            valueStruct.put(SOURCE_SCHEMA_NAME, sourceStruct);
+                    .put(SourceSchema.TITLE_FIELD, source.getTitle())
+                    .put(SourceSchema.REGION_FIELD, source.getRegion())
+                    .put(SourceSchema.DOMAIN_FIELD, source.getDomain())
+                    .put(SourceSchema.PATH_FIELD, source.getPath());
+            valueStruct.put(SourceSchema.SOURCE_SCHEMA_NAME, sourceStruct);
         }
 
         return valueStruct;
