@@ -12,6 +12,10 @@ crypto.panic.key=YOUR_API_KEY
 ===================
 docker rm -f $(docker ps -a -q)
 docker volume rm $(docker volume ls -q)
+
+OR
+docker container prune
+
 -----
     mvn clean package
     ./run.sh

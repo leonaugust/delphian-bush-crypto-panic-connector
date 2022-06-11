@@ -15,7 +15,7 @@ import java.util.Objects;
 @Builder
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CryptoNews implements Serializable {
+public class CryptoNews {
 
     private String kind;
 
