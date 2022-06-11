@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CryptoNewsResponse implements Serializable {
+public class CryptoNewsResponse {
 
     private int count;
     private List<CryptoNews> results;

@@ -3,24 +3,27 @@ package com.delphian.bush;
 import com.delphian.bush.config.CryptoPanicSourceConnectorConfig;
 import com.delphian.bush.dto.CryptoNews;
 import com.delphian.bush.dto.CryptoNewsResponse;
+import com.delphian.bush.dto.Currencies;
 import com.delphian.bush.dto.NewsSource;
 import com.delphian.bush.schema.CryptoNewsSchema;
+import com.delphian.bush.schema.CurrenciesSchema;
 import com.delphian.bush.schema.SourceSchema;
 import com.delphian.bush.util.VersionUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.connect.data.Schema;
+import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.source.SourceTask;
 import org.springframework.http.ResponseEntity;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.delphian.bush.config.CryptoPanicSourceConnectorConfig.*;
+import static com.delphian.bush.schema.CurrenciesSchema.CONVERTER;
 import static com.delphian.bush.schema.SourceSchema.SOURCE_SCHEMA;
 import static com.delphian.bush.util.WebUtil.getRestTemplate;
 
@@ -106,10 +109,7 @@ public class CryptoPanicSourceTask extends SourceTask {
                 .put(CryptoNewsSchema.ID_FIELD, news.getId());
     }
 
-//    TODO. Extract variables to global variables.
-//    Add Currencies object setting from News.
     public Struct buildRecordValue(CryptoNews cryptoNews){
-        // Issue top level fields
         Struct valueStruct = new Struct(CryptoNewsSchema.NEWS_SCHEMA)
                 .put(CryptoNewsSchema.KIND_FIELD, cryptoNews.getKind())
                 .put(CryptoNewsSchema.DOMAIN_FIELD, cryptoNews.getDomain())
@@ -130,6 +130,13 @@ public class CryptoPanicSourceTask extends SourceTask {
             valueStruct.put(SourceSchema.SOURCE_SCHEMA_NAME, sourceStruct);
         }
 
+        List<Currencies> currencies = Optional.ofNullable(cryptoNews.getCurrencies()).orElse(new ArrayList<>());
+        final List<Struct> items = currencies.stream()
+                .map(CONVERTER::toConnectData)
+                .collect(Collectors.toList());
+        valueStruct.put(CurrenciesSchema.CURRENCIES_SCHEMA_NAME, items);
+
+        log.error("Resulting struct: {}", valueStruct);
         return valueStruct;
     }
 
