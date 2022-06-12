@@ -56,7 +56,7 @@ public class CryptoPanicSourceTask extends SourceTask {
         ResponseEntity<CryptoNewsResponse> responseEntity = getRestTemplate().getForEntity(apiUrl, CryptoNewsResponse.class);
         CryptoNewsResponse newsResponse = responseEntity.getBody();
 
-        log.error("Received news records: " + newsResponse.getResults().size());
+        log.debug("Received news records: " + newsResponse.getResults().size());
 
         if (newsResponse != null) {
             List<CryptoNews> results = newsResponse.getResults();
@@ -136,7 +136,7 @@ public class CryptoPanicSourceTask extends SourceTask {
                 .collect(Collectors.toList());
         valueStruct.put(CurrenciesSchema.CURRENCIES_SCHEMA_NAME, items);
 
-        log.error("Resulting struct: {}", valueStruct);
+        log.debug("Resulting struct: {}", valueStruct);
         return valueStruct;
     }
 
