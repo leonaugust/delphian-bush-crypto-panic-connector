@@ -4,7 +4,7 @@ import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 
 import static com.delphian.bush.config.CryptoPanicSourceConnectorConfig.APPLICATION_CONFIG;
-import static com.delphian.bush.schema.CurrenciesSchema.*;
+import static com.delphian.bush.schema.CurrencySchema.*;
 import static com.delphian.bush.schema.SourceSchema.SOURCE_SCHEMA;
 import static com.delphian.bush.schema.SourceSchema.SOURCE_SCHEMA_NAME;
 
@@ -25,7 +25,7 @@ public class CryptoNewsSchema {
     public static final Schema NEWS_SCHEMA = SchemaBuilder.struct().name("News")
             .version(FIRST_VERSION)
             .field(SOURCE_SCHEMA_NAME,  SOURCE_SCHEMA)
-            .field(CURRENCIES_SCHEMA_NAME, SchemaBuilder.array(CURRENCIES_SCHEMA).required())
+            .field(CURRENCIES_SCHEMA_NAME, SchemaBuilder.array(CURRENCY_SCHEMA).required())
             .field(KIND_FIELD, Schema.OPTIONAL_STRING_SCHEMA)
             .field(DOMAIN_FIELD, Schema.OPTIONAL_STRING_SCHEMA)
             .field(TITLE_FIELD, Schema.OPTIONAL_STRING_SCHEMA)
