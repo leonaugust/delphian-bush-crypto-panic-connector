@@ -10,6 +10,7 @@ import java.util.Objects;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CryptoNews {
 
