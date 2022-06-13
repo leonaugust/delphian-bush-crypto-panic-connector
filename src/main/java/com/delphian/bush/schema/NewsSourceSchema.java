@@ -3,9 +3,10 @@ package com.delphian.bush.schema;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 
-public class SourceSchema {
+import static com.delphian.bush.util.VersionUtil.FIRST_VERSION;
 
-    public static final Integer FIRST_VERSION = 1;
+public class NewsSourceSchema {
+
     public static final String SOURCE_SCHEMA_NAME = "source";
 
     public static final String TITLE_FIELD = "title";

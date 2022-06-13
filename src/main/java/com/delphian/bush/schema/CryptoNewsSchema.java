@@ -5,12 +5,11 @@ import org.apache.kafka.connect.data.SchemaBuilder;
 
 import static com.delphian.bush.config.CryptoPanicSourceConnectorConfig.APPLICATION_CONFIG;
 import static com.delphian.bush.schema.CurrencySchema.*;
-import static com.delphian.bush.schema.SourceSchema.SOURCE_SCHEMA;
-import static com.delphian.bush.schema.SourceSchema.SOURCE_SCHEMA_NAME;
+import static com.delphian.bush.schema.NewsSourceSchema.SOURCE_SCHEMA;
+import static com.delphian.bush.schema.NewsSourceSchema.SOURCE_SCHEMA_NAME;
+import static com.delphian.bush.util.VersionUtil.FIRST_VERSION;
 
 public class CryptoNewsSchema {
-
-    public static final Integer FIRST_VERSION = 1;
 
     public static final String ID_FIELD = "id";
     public static final String KIND_FIELD = "kind";
@@ -25,7 +24,7 @@ public class CryptoNewsSchema {
     public static final Schema NEWS_SCHEMA = SchemaBuilder.struct().name("News")
             .version(FIRST_VERSION)
             .field(SOURCE_SCHEMA_NAME,  SOURCE_SCHEMA)
-            .field(CURRENCIES_SCHEMA_NAME, SchemaBuilder.array(CURRENCY_SCHEMA).required())
+            .field(CURRENCIES_SCHEMA_NAME, SchemaBuilder.array(CURRENCY_SCHEMA).optional())
             .field(KIND_FIELD, Schema.OPTIONAL_STRING_SCHEMA)
             .field(DOMAIN_FIELD, Schema.OPTIONAL_STRING_SCHEMA)
             .field(TITLE_FIELD, Schema.OPTIONAL_STRING_SCHEMA)
