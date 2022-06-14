@@ -17,10 +17,10 @@ public class NewsSourceConverter implements ConnectPOJOConverter<NewsSource> {
     public NewsSource fromConnectData(Struct s) {
         // simple conversion, but more complex types could throw errors
         return NewsSource.builder()
-                .title(s.getString("title"))
-                .region(s.getString("region"))
-                .domain(s.getString("domain"))
-                .path(s.getString("path"))
+                .title(s.getString(NewsSourceSchema.TITLE_FIELD))
+                .region(s.getString(NewsSourceSchema.REGION_FIELD))
+                .domain(s.getString(NewsSourceSchema.DOMAIN_FIELD))
+                .path(s.getString(NewsSourceSchema.PATH_FIELD))
                 .build();
     }
 
@@ -31,10 +31,10 @@ public class NewsSourceConverter implements ConnectPOJOConverter<NewsSource> {
             return null;
         }
 
-        s.put("title", c.getTitle());
-        s.put("region", c.getRegion());
-        s.put("domain", c.getDomain());
-        s.put("path", c.getPath());
+        s.put(NewsSourceSchema.TITLE_FIELD, c.getTitle());
+        s.put(NewsSourceSchema.REGION_FIELD, c.getRegion());
+        s.put(NewsSourceSchema.DOMAIN_FIELD, c.getDomain());
+        s.put(NewsSourceSchema.PATH_FIELD, c.getPath());
         return s;
     }
 }

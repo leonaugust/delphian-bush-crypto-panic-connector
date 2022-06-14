@@ -30,16 +30,16 @@ public class CryptoNewsConverter implements ConnectPOJOConverter<CryptoNews> {
                 .collect(Collectors.toList());
 
         return CryptoNews.builder()
-                .source(NewsSourceConverter.INSTANCE.fromConnectData(s.getStruct("source")))
+                .source(NewsSourceConverter.INSTANCE.fromConnectData(s.getStruct(NewsSourceSchema.SOURCE_SCHEMA_NAME)))
                 .currencies(currencies)
-                .kind(s.getString("kind"))
-                .domain(s.getString("domain"))
-                .title(s.getString("title"))
-                .publishedAt(s.getString("published_at"))
-                .slug(s.getString("slug"))
-                .id(s.getString("id"))
-                .url(s.getString("url"))
-                .createdAt(s.getString("created_at"))
+                .kind(s.getString(CryptoNewsSchema.KIND_FIELD))
+                .domain(s.getString(CryptoNewsSchema.DOMAIN_FIELD))
+                .title(s.getString(CryptoNewsSchema.TITLE_FIELD))
+                .publishedAt(s.getString(CryptoNewsSchema.PUBLISHED_AT_FIELD))
+                .slug(s.getString(CryptoNewsSchema.SLUG_FIELD))
+                .id(s.getString(CryptoNewsSchema.ID_FIELD))
+                .url(s.getString(CryptoNewsSchema.URL_FIELD))
+                .createdAt(s.getString(CryptoNewsSchema.CREATED_AT_FIELD))
                 .build();
     }
 
