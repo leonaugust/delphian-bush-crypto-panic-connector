@@ -1,6 +1,7 @@
 package com.delphian.bush.util.converter;
 
 import com.delphian.bush.dto.Currency;
+import com.delphian.bush.schema.CurrencySchema;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 
@@ -18,10 +19,10 @@ public class CurrencyConverter implements ConnectPOJOConverter<Currency> {
     public Currency fromConnectData(Struct s) {
         // simple conversion, but more complex types could throw errors
         return Currency.builder()
-                .code(s.getString("code"))
-                .title(s.getString("title"))
-                .url(s.getString("url"))
-                .slug(s.getString("slug"))
+                .code(s.getString(CurrencySchema.CODE_FIELD))
+                .title(s.getString(CurrencySchema.TITLE_FIELD))
+                .url(s.getString(CurrencySchema.URL_FIELD))
+                .slug(s.getString(CurrencySchema.SLUG_FIELD))
                 .build();
     }
 
@@ -32,10 +33,10 @@ public class CurrencyConverter implements ConnectPOJOConverter<Currency> {
             return null;
         }
 
-        s.put("code", c.getCode());
-        s.put("title", c.getTitle());
-        s.put("url", c.getUrl());
-        s.put("slug", c.getSlug());
+        s.put(CurrencySchema.CODE_FIELD, c.getCode());
+        s.put(CurrencySchema.TITLE_FIELD, c.getTitle());
+        s.put(CurrencySchema.URL_FIELD, c.getUrl());
+        s.put(CurrencySchema.SLUG_FIELD, c.getSlug());
         return s;
     }
 }
