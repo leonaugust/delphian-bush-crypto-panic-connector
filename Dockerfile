@@ -9,6 +9,4 @@ COPY target target
 VOLUME /crypto-panic-connector/config
 VOLUME /crypto-panic-connector/offsets
 
-#RUN ls target
-
-CMD CLASSPATH="$(find target/ -type f -name '*.jar'| grep '\-package' | tr '\n' ':')" connect-standalone config/worker.properties config/custom-connector.properties
+CMD export KAFKA_LOG4J_OPTS="-Dlog4j.configuration=config/log4j.properties" && CLASSPATH="$(find target/ -type f -name '*.jar'| grep '\-package' | tr '\n' ':')" connect-standalone config/worker.properties config/custom-connector.properties

@@ -2,10 +2,9 @@ package com.delphian.bush.dto;
 
 import lombok.*;
 
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class NewsSource {
 

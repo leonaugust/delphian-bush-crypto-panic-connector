@@ -3,12 +3,11 @@ package com.delphian.bush.dto;
 
 import lombok.*;
 
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class Currencies {
+public class Currency {
 
     private String code;
     private String title;
