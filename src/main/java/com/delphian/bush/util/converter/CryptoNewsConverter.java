@@ -25,12 +25,12 @@ public class CryptoNewsConverter implements ConnectPOJOConverter<CryptoNews> {
 
     @Override
     public CryptoNews fromConnectData(Struct s) {
-        List<Struct> currenciesStruct = (List<Struct>) s.get("currencies");
+        List<Struct> currenciesStruct = (List<Struct>) s.get(CurrencySchema.SCHEMA_NAME);
         List<Currency> currencies = currenciesStruct.stream().map(c -> CurrencyConverter.INSTANCE.fromConnectData(c))
                 .collect(Collectors.toList());
 
         return CryptoNews.builder()
-                .source(NewsSourceConverter.INSTANCE.fromConnectData(s.getStruct(NewsSourceSchema.SOURCE_SCHEMA_NAME)))
+                .source(NewsSourceConverter.INSTANCE.fromConnectData(s.getStruct(NewsSourceSchema.SCHEMA_NAME)))
                 .currencies(currencies)
                 .kind(s.getString(CryptoNewsSchema.KIND_FIELD))
                 .domain(s.getString(CryptoNewsSchema.DOMAIN_FIELD))
@@ -46,7 +46,7 @@ public class CryptoNewsConverter implements ConnectPOJOConverter<CryptoNews> {
     @Override
     public Struct toConnectData(CryptoNews cryptoNews) {
         Struct struct = new Struct(CryptoNewsSchema.NEWS_SCHEMA)
-                .put(NewsSourceSchema.SOURCE_SCHEMA_NAME, NewsSourceConverter.INSTANCE.toConnectData(cryptoNews.getSource()))
+                .put(NewsSourceSchema.SCHEMA_NAME, NewsSourceConverter.INSTANCE.toConnectData(cryptoNews.getSource()))
                 .put(CryptoNewsSchema.KIND_FIELD, cryptoNews.getKind())
                 .put(CryptoNewsSchema.DOMAIN_FIELD, cryptoNews.getDomain())
                 .put(CryptoNewsSchema.TITLE_FIELD, cryptoNews.getTitle())
@@ -60,7 +60,7 @@ public class CryptoNewsConverter implements ConnectPOJOConverter<CryptoNews> {
         final List<Struct> items = currencies.stream()
                 .map(CONVERTER::toConnectData)
                 .collect(Collectors.toList());
-        struct.put(CurrencySchema.CURRENCIES_SCHEMA_NAME, items);
+        struct.put(CurrencySchema.SCHEMA_NAME, items);
         return struct;
     }
 }

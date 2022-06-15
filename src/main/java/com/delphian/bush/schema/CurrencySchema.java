@@ -9,7 +9,7 @@ import org.apache.kafka.connect.data.SchemaBuilder;
 public class CurrencySchema {
 
 
-    public static final String CURRENCIES_SCHEMA_NAME = "currencies";
+    public static final String SCHEMA_NAME = Currency.class.getName();
 
     public static final String CODE_FIELD = "code";
     public static final String TITLE_FIELD = "title";
@@ -17,7 +17,7 @@ public class CurrencySchema {
     public static final String URL_FIELD = "url";
 
     public static final Schema CURRENCY_SCHEMA = SchemaBuilder.struct()
-            .name(Currency.class.getName())
+            .name(SCHEMA_NAME)
             .doc("A currency item")
             .field(CODE_FIELD, Schema.OPTIONAL_STRING_SCHEMA)
             .field(TITLE_FIELD, Schema.OPTIONAL_STRING_SCHEMA)
