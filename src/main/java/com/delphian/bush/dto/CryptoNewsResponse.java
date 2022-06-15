@@ -6,14 +6,11 @@ import lombok.*;
 import java.io.Serializable;
 import java.util.List;
 
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
-@Builder
-@ToString
+@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CryptoNewsResponse implements Serializable {
+public class CryptoNewsResponse {
 
     private int count;
     private List<CryptoNews> results;

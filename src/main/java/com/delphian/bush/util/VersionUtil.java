@@ -2,6 +2,8 @@ package com.delphian.bush.util;
 
 public class VersionUtil {
 
+  public static final Integer FIRST_VERSION = 1;
+
 
   public static String getVersion() {
     try {

@@ -15,7 +15,6 @@ public class CryptoPanicSourceConnector extends SourceConnector {
     @Override
     public void start(Map<String, String> props) {
         // The complete version includes error handling as well.
-
         config = new CryptoPanicSourceConnectorConfig(props);
     }
 
