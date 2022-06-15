@@ -1,16 +1,17 @@
 package com.delphian.bush.schema;
 
+import com.delphian.bush.dto.CryptoNews;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 
 import static com.delphian.bush.config.CryptoPanicSourceConnectorConfig.APPLICATION_CONFIG;
 import static com.delphian.bush.schema.CurrencySchema.*;
 import static com.delphian.bush.schema.NewsSourceSchema.SOURCE_SCHEMA;
-import static com.delphian.bush.schema.NewsSourceSchema.SOURCE_SCHEMA_NAME;
 import static com.delphian.bush.util.VersionUtil.FIRST_VERSION;
 
 public class CryptoNewsSchema {
 
+    public static final String SCHEMA_NAME = CryptoNews.class.getName();
     public static final String ID_FIELD = "id";
     public static final String KIND_FIELD = "kind";
     public static final String DOMAIN_FIELD = "domain";
@@ -21,10 +22,11 @@ public class CryptoNewsSchema {
     public static final String CREATED_AT_FIELD = "created_at";
 
 
-    public static final Schema NEWS_SCHEMA = SchemaBuilder.struct().name("News")
+    public static final Schema NEWS_SCHEMA = SchemaBuilder.struct()
+            .name(SCHEMA_NAME)
             .version(FIRST_VERSION)
-            .field(SOURCE_SCHEMA_NAME,  SOURCE_SCHEMA)
-            .field(CURRENCIES_SCHEMA_NAME, SchemaBuilder.array(CURRENCY_SCHEMA).optional())
+            .field(NewsSourceSchema.SCHEMA_NAME,  SOURCE_SCHEMA)
+            .field(CurrencySchema.SCHEMA_NAME, SchemaBuilder.array(CURRENCY_SCHEMA).optional())
             .field(KIND_FIELD, Schema.OPTIONAL_STRING_SCHEMA)
             .field(DOMAIN_FIELD, Schema.OPTIONAL_STRING_SCHEMA)
             .field(TITLE_FIELD, Schema.OPTIONAL_STRING_SCHEMA)
