@@ -22,6 +22,11 @@ public class CryptoPanicSourceConnectorConfig extends AbstractConfig {
 
     public static final String PROFILE_DOC = "Which profile is active";
 
+
+    public static final String POLL_TIMEOUT_CONFIG = "poll.timeout";
+
+    public static final String POLL_TIMEOUT_DOC = "How much time to wait between polls";
+
     public CryptoPanicSourceConnectorConfig(ConfigDef config, Map<String, String> parsedConfig) {
         super(config, parsedConfig);
     }
@@ -35,6 +40,7 @@ public class CryptoPanicSourceConnectorConfig extends AbstractConfig {
                 .define(TOPIC_CONFIG, ConfigDef.Type.STRING, ConfigDef.Importance.HIGH, TOPIC_DOC)
                 .define(APPLICATION_CONFIG, ConfigDef.Type.STRING, ConfigDef.Importance.HIGH, APPLICATION_DOC)
                 .define(CRYPTO_PANIC_KEY_CONFIG, ConfigDef.Type.STRING, ConfigDef.Importance.HIGH, CRYPTO_PANIC_KEY_DOC)
-                .define(PROFILE_ACTIVE_CONFIG, ConfigDef.Type.STRING, ConfigDef.Importance.HIGH, PROFILE_DOC);
+                .define(PROFILE_ACTIVE_CONFIG, ConfigDef.Type.STRING, ConfigDef.Importance.HIGH, PROFILE_DOC)
+                .define(POLL_TIMEOUT_CONFIG, ConfigDef.Type.LONG, ConfigDef.Importance.HIGH, POLL_TIMEOUT_DOC);
     }
 }

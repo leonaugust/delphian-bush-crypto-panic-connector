@@ -15,14 +15,18 @@ import org.apache.kafka.connect.source.SourceTask;
 import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.delphian.bush.config.CryptoPanicSourceConnectorConfig.*;
+import static java.time.LocalDateTime.now;
 
 @Slf4j
 public class CryptoPanicSourceTask extends SourceTask {
+
+    private LocalDateTime latestPoll = null;
 
     private CryptoPanicSourceConnectorConfig config;
 
@@ -40,7 +44,13 @@ public class CryptoPanicSourceTask extends SourceTask {
 
     @Override
     public List<SourceRecord> poll() throws InterruptedException {
-        TimeUnit.SECONDS.sleep(30); // TODO. extract to config
+        Long seconds = config.getLong(POLL_TIMEOUT_CONFIG);
+        if (latestPoll == null || now().isAfter(latestPoll.plusSeconds(seconds))) {
+            latestPoll = LocalDateTime.now();
+        } else {
+            log.info("Poll timeout: [{}] seconds", seconds);
+            TimeUnit.SECONDS.sleep(seconds);
+        }
         List<SourceRecord> records = new ArrayList<>();
         String profile = config.getString(PROFILE_ACTIVE_CONFIG);
         String cryptoPanicKey = config.getString(CRYPTO_PANIC_KEY_CONFIG);
