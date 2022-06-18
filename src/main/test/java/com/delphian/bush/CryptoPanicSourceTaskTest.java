@@ -1,15 +1,20 @@
 package com.delphian.bush;
 
 import com.delphian.bush.dto.CryptoNews;
+import com.delphian.bush.dto.CryptoNewsResponse;
 import com.delphian.bush.dto.Currency;
 import com.delphian.bush.dto.NewsSource;
 import com.delphian.bush.util.converter.CryptoNewsConverter;
 import com.delphian.bush.util.converter.CurrencyConverter;
 import com.delphian.bush.util.converter.NewsSourceConverter;
+import com.delphian.bush.util.json.NewsJsonServiceImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.connect.data.Struct;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,6 +65,15 @@ public class CryptoPanicSourceTaskTest {
         );
 
         assertEqualsCryptoNews(cryptoNews, struct);
+    }
+
+    @Test
+    public void checkOffsetTest() throws FileNotFoundException {
+        NewsJsonServiceImpl newsJsonService = new NewsJsonServiceImpl(new ObjectMapper());
+        CryptoNewsResponse newsResponse = newsJsonService.getFromJson();
+        List<CryptoNews> results = newsResponse.getResults();
+        results.sort(Comparator.comparing(CryptoNews::getId));
+        int temp = 1;
     }
 
     private void assertEqualsCryptoNews(CryptoNews expected, Struct struct) {
