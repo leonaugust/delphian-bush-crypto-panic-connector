@@ -5,26 +5,24 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 @Slf4j
 public abstract class JsonToPojoService<T> {
 
     private final ObjectMapper objectMapper;
-//    private final File file;
+    private final InputStream inputStream;
     private final Class<T> targetClass;
 
-    private String content;
-
-    protected JsonToPojoService(String content, ObjectMapper objectMapper, Class<T> targetClass) {
+    protected JsonToPojoService(InputStream inputStream, ObjectMapper objectMapper, Class<T> targetClass) {
         this.objectMapper = objectMapper;
-//        this.file = file;
-        this.content = content;
+        this.inputStream = inputStream;
         this.targetClass = targetClass;
     }
 
     public T getFromJson() {
         try {
-            return objectMapper.readValue(content, targetClass);
+            return objectMapper.readValue(inputStream, targetClass);
         } catch (IOException e) {
             log.debug("Json test service encountered unexpected exception: {}", e.getMessage());
             return null;

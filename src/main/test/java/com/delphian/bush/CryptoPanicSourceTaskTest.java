@@ -13,6 +13,7 @@ import org.apache.kafka.connect.data.Struct;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -68,7 +69,7 @@ public class CryptoPanicSourceTaskTest {
     }
 
     @Test
-    public void checkOffsetTest() throws FileNotFoundException {
+    public void checkOffsetTest() throws IOException {
         NewsJsonServiceImpl newsJsonService = new NewsJsonServiceImpl(new ObjectMapper());
         CryptoNewsResponse newsResponse = newsJsonService.getFromJson();
         List<CryptoNews> results = newsResponse.getResults();
