@@ -68,15 +68,6 @@ public class CryptoPanicSourceTaskTest {
         assertEqualsCryptoNews(cryptoNews, struct);
     }
 
-    @Test
-    public void checkOffsetTest() throws IOException {
-        NewsJsonServiceImpl newsJsonService = new NewsJsonServiceImpl(new ObjectMapper());
-        CryptoNewsResponse newsResponse = newsJsonService.getFromJson();
-        List<CryptoNews> results = newsResponse.getResults();
-        results.sort(Comparator.comparing(CryptoNews::getId));
-        int temp = 1;
-    }
-
     private void assertEqualsCryptoNews(CryptoNews expected, Struct struct) {
         CryptoNews actual = CryptoNewsConverter.INSTANCE.fromConnectData(struct);
         assertEquals(expected.getKind(), actual.getKind());
