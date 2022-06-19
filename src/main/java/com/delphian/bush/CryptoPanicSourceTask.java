@@ -4,28 +4,35 @@ import com.delphian.bush.config.CryptoPanicSourceConnectorConfig;
 import com.delphian.bush.dto.CryptoNews;
 import com.delphian.bush.dto.CryptoNewsResponse;
 import com.delphian.bush.schema.CryptoNewsSchema;
+import com.delphian.bush.service.CryptoPanicService;
+import com.delphian.bush.service.CryptoPanicServiceImpl;
 import com.delphian.bush.util.VersionUtil;
 import com.delphian.bush.util.converter.CryptoNewsConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.source.SourceTask;
-import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.delphian.bush.config.CryptoPanicSourceConnectorConfig.*;
-import static com.delphian.bush.util.WebUtil.getRestTemplate;
+import static java.time.LocalDateTime.now;
 
 @Slf4j
 public class CryptoPanicSourceTask extends SourceTask {
 
+    private LocalDateTime latestPoll = null;
+
+    private boolean fetchAllPreviousNews;
+
     private CryptoPanicSourceConnectorConfig config;
+
+    private CryptoPanicService cryptoPanicService = new CryptoPanicServiceImpl();
 
     @Override
     public String version() {
@@ -39,28 +46,65 @@ public class CryptoPanicSourceTask extends SourceTask {
 
     @Override
     public List<SourceRecord> poll() throws InterruptedException {
-        TimeUnit.SECONDS.sleep(15); // TODO. extract to config
-        String cryptoPanicKey = config.getString(CRYPTO_PANIC_KEY_CONFIG);
-        String apiUrl = "https://cryptopanic.com/api/v1/posts/" +
-                "?auth_token=" + cryptoPanicKey +
-                "&public=true";
-
+        Long seconds = config.getLong(POLL_TIMEOUT_CONFIG);
+        if (latestPoll == null || now().isAfter(latestPoll.plusSeconds(seconds))) {
+            // If connector stopped reading due to exception or connector is just starting to read
+            if (latestPoll == null || now().isAfter(latestPoll.plusHours(1))) {
+                fetchAllPreviousNews = true;
+            }
+            latestPoll = LocalDateTime.now();
+        } else {
+            log.info("Poll timeout: [{}] seconds", seconds);
+            TimeUnit.SECONDS.sleep(seconds);
+        }
         List<SourceRecord> records = new ArrayList<>();
+        Optional<Long> sourceOffset = getLatestSourceOffset();
+        String profile = config.getString(PROFILE_ACTIVE_CONFIG);
+        String cryptoPanicKey = config.getString(CRYPTO_PANIC_KEY_CONFIG);
+        CryptoNewsResponse newsResponse = cryptoPanicService.getCryptoNewsByProfile(profile, cryptoPanicKey, fetchAllPreviousNews, sourceOffset);
+        fetchAllPreviousNews = false;
 
-        ResponseEntity<CryptoNewsResponse> responseEntity = getRestTemplate().getForEntity(apiUrl, CryptoNewsResponse.class);
-        CryptoNewsResponse newsResponse = responseEntity.getBody();
+        if (newsResponse != null && newsResponse.getResults() != null) {
+            List<CryptoNews> filteredNews = newsResponse.getResults().stream()
+                    .filter(n -> {
+                        if (sourceOffset.isPresent()) {
+//                            log.info("Latest offset is not null, additional checking required");
+                            if (Long.parseLong(n.getId()) > sourceOffset.get()) {
+//                                log.info("newsId: [{}] is bigger than latestOffset: [{}], added news to result", Long.parseLong(n.getId()), sourceOffset.get());
+                                return true;
+                            }
+                        } else {
+//                            log.info("Latest offset was null, added news to result");
+                            return true;
+                        }
+                        return false;
+                    })
+                    .sorted(Comparator.comparing(CryptoNews::getId))
+                    .collect(Collectors.toList());
 
-        if (newsResponse != null) {
-            List<CryptoNews> results = newsResponse.getResults();
-
-            if (results != null && !results.isEmpty()) {
-                for (CryptoNews news : results) {
+            log.info("The amount of filtered news which offset is greater than sourceOffset: {}", filteredNews.size());
+            if (!CollectionUtils.isEmpty(filteredNews)) {
+                for (CryptoNews news : filteredNews) {
                     records.add(generateRecordFromNews(news));
                 }
             }
         }
 
         return records;
+    }
+
+    private Optional<Long> getLatestSourceOffset() {
+        Map<String, Object> offset = context.offsetStorageReader().offset(sourcePartition());
+        if (offset != null) {
+            log.info("Offset is not null");
+            Object id = offset.get("id");
+            if (id != null) {
+                Long latestOffset = Long.valueOf((String) id);
+                log.info("Offset information: {}", latestOffset);
+                return Optional.of(latestOffset);
+            }
+        }
+        return Optional.empty();
     }
 
     private SourceRecord generateRecordFromNews(CryptoNews cryptoNews) {
@@ -77,14 +121,14 @@ public class CryptoPanicSourceTask extends SourceTask {
         );
     }
 
-// Track which source we have been reading.
+    // Track which source we have been reading.
     private Map<String, String> sourcePartition() {
         Map<String, String> partitionProperties = new HashMap<>();
         partitionProperties.put(APPLICATION_CONFIG, config.getString(APPLICATION_CONFIG));
         return partitionProperties;
     }
 
-//  Track the exact place we have been reading
+    //  Track the exact place we have been reading
     // do something with pagination and size
     private Map<String, String> sourceOffset(CryptoNews cryptoNews) {
         Map<String, String> map = new HashMap<>();
@@ -92,16 +136,16 @@ public class CryptoPanicSourceTask extends SourceTask {
         return map;
     }
 
-    private Struct buildRecordKey(CryptoNews news){
+    private Struct buildRecordKey(CryptoNews news) {
         // Key Schema
-       return new Struct(CryptoNewsSchema.NEWS_KEY_SCHEMA)
+        return new Struct(CryptoNewsSchema.NEWS_KEY_SCHEMA)
                 .put(APPLICATION_CONFIG, config.getString(APPLICATION_CONFIG))
                 .put(CryptoNewsSchema.ID_FIELD, news.getId());
     }
 
-    public Struct buildRecordValue(CryptoNews cryptoNews){
+    public Struct buildRecordValue(CryptoNews cryptoNews) {
         Struct struct = CryptoNewsConverter.INSTANCE.toConnectData(cryptoNews);
-        log.debug("Resulting struct: {}", struct);
+//        log.debug("Resulting struct: {}", struct);
         return struct;
     }
 
