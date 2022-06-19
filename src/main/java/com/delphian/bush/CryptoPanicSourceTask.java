@@ -28,6 +28,8 @@ public class CryptoPanicSourceTask extends SourceTask {
 
     private LocalDateTime latestPoll = null;
 
+    private boolean fetchAllPreviousNews;
+
     private CryptoPanicSourceConnectorConfig config;
 
     private CryptoPanicService cryptoPanicService = new CryptoPanicServiceImpl();
@@ -46,17 +48,22 @@ public class CryptoPanicSourceTask extends SourceTask {
     public List<SourceRecord> poll() throws InterruptedException {
         Long seconds = config.getLong(POLL_TIMEOUT_CONFIG);
         if (latestPoll == null || now().isAfter(latestPoll.plusSeconds(seconds))) {
+            // If connector stopped reading due to exception or connector is just starting to read
+            if (latestPoll == null || now().isAfter(latestPoll.plusHours(1))) {
+                fetchAllPreviousNews = true;
+            }
             latestPoll = LocalDateTime.now();
         } else {
             log.info("Poll timeout: [{}] seconds", seconds);
             TimeUnit.SECONDS.sleep(seconds);
         }
         List<SourceRecord> records = new ArrayList<>();
+        Optional<Long> sourceOffset = getLatestSourceOffset();
         String profile = config.getString(PROFILE_ACTIVE_CONFIG);
         String cryptoPanicKey = config.getString(CRYPTO_PANIC_KEY_CONFIG);
-        CryptoNewsResponse newsResponse = cryptoPanicService.getCryptoNews(profile, cryptoPanicKey);
+        CryptoNewsResponse newsResponse = cryptoPanicService.getCryptoNewsByProfile(profile, cryptoPanicKey, fetchAllPreviousNews, sourceOffset);
+        fetchAllPreviousNews = false;
 
-        Optional<Long> sourceOffset = getLatestSourceOffset();
         if (newsResponse != null && newsResponse.getResults() != null) {
             List<CryptoNews> filteredNews = newsResponse.getResults().stream()
                     .filter(n -> {
@@ -91,7 +98,6 @@ public class CryptoPanicSourceTask extends SourceTask {
         if (offset != null) {
             log.info("Offset is not null");
             Object id = offset.get("id");
-            log.info("The offset id was null");
             if (id != null) {
                 Long latestOffset = Long.valueOf((String) id);
                 log.info("Offset information: {}", latestOffset);
