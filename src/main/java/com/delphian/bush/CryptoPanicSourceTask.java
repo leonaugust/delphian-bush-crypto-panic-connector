@@ -68,13 +68,13 @@ public class CryptoPanicSourceTask extends SourceTask {
             List<CryptoNews> filteredNews = newsResponse.getResults().stream()
                     .filter(n -> {
                         if (sourceOffset.isPresent()) {
-                            log.info("Latest offset is not null, additional checking required");
+//                            log.info("Latest offset is not null, additional checking required");
                             if (Long.parseLong(n.getId()) > sourceOffset.get()) {
-                                log.info("newsId: [{}] is bigger than latestOffset: [{}], added news to result", Long.parseLong(n.getId()), sourceOffset.get());
+//                                log.info("newsId: [{}] is bigger than latestOffset: [{}], added news to result", Long.parseLong(n.getId()), sourceOffset.get());
                                 return true;
                             }
                         } else {
-                            log.info("Latest offset was null, added news to result");
+//                            log.info("Latest offset was null, added news to result");
                             return true;
                         }
                         return false;
