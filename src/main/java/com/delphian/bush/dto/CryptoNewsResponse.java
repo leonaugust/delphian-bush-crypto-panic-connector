@@ -12,6 +12,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CryptoNewsResponse {
 
+    private String next;
     private int count;
     private List<CryptoNews> results;
 
