@@ -8,8 +8,16 @@ Add your properties in the following directory /config/custom-connector.properti
     topic=crypto-news
     application=crypto-hoover
     crypto.panic.key=YOUR_API_KEY
+    profile.active=test
+    poll.timeout=60
+
+* profile.active
+Available values: [test/prod]. If "test" will get the mocked news instead of calling crypto-panic api
 
 -----
+**Testing**
+
+
 Start in standalone mode
 
     mvn clean package
