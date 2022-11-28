@@ -6,14 +6,6 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 
-/**
- * Information about news with currencies:
- *
- * BTC - 7
- * RUNE - 1
- * ADA - 2
- * ETH - 2
- */
 public class NewsJsonServiceImpl extends JsonToPojoService<CryptoNewsResponse> {
 
     public NewsJsonServiceImpl(ObjectMapper objectMapper) throws IOException {
