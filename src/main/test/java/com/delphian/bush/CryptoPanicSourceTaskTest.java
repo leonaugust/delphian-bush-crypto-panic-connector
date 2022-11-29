@@ -10,6 +10,8 @@ import com.delphian.bush.util.converter.CurrencyConverter;
 import com.delphian.bush.util.converter.NewsSourceConverter;
 import org.apache.kafka.connect.data.Struct;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CryptoPanicSourceTaskTest {
     private CryptoPanicSourceTask cryptoPanicSourceTask = new CryptoPanicSourceTask();
+    private static final Logger log = LoggerFactory.getLogger(CryptoPanicSourceTaskTest.class);
 
     @Test
     public void buildRecordValueTest() {
@@ -63,6 +66,7 @@ public class CryptoPanicSourceTaskTest {
         );
 
         assertEqualsCryptoNews(cryptoNews, struct);
+        log.debug("News are equal");
     }
 
     private void assertEqualsCryptoNews(CryptoNews expected, Struct struct) {
