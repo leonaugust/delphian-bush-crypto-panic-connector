@@ -23,16 +23,20 @@ Will be included in your key schema
 
 * `poll.timeout` - Time in seconds between the poll
 
+* `name` - The last offset will be associated with the name given. For testing purposes, change name.
+Otherwise, the connector will keep the latest offset of the records
+
 -----
 **Testing in standalone mode**
 
 Launch Kafka with docker-compose(starts on port *29092*)
 
     cd kafka
-    docker-compose up
+    docker-compose up -d
 -----
 Start in standalone mode
 
+    cd ..
     mvn clean package
     ./run.sh
 
@@ -46,12 +50,13 @@ Read data
 
 Stop connector
 
-    docker container stop kafka
+    docker container stop news-connector
 -----
 
 Clean up data written to Kafka by removing all containers and volumes(*Be careful, this will delete all containers*)
 
-    docker-compose down
+    cd kafka
+    docker-compose down --volumes
     docker container prune
     docker volume prune
 -----
