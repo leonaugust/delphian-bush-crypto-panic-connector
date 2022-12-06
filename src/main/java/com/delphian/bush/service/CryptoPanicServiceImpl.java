@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import static com.delphian.bush.util.WebUtil.getRestTemplate;
 public class CryptoPanicServiceImpl implements CryptoPanicService {
 
     public static final String TEST_PROFILE = "test";
+    public static final String PROD_PROFILE = "prod";
     public static final int START_PAGE = 1;
 
     @Override
@@ -58,7 +60,7 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
             pagedResponses.add(cryptoNewsNormal);
             containsLatestSourceOffset = firstPage.getResults().stream()
                     .anyMatch(n -> sourceOffset.get().equals(Long.parseLong(n.getId())));
-            hasNext = firstPage.getNext() != null || !firstPage.getNext().equals("null");
+            hasNext = cryptoNewsNormal.getNext() != null && !cryptoNewsNormal.getNext().equals("null");
         }
 
         List<CryptoNews> news = pagedResponses.stream()
@@ -71,7 +73,7 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
 
     private CryptoNewsResponse getAllPages(String cryptoPanicKey) {
         CryptoNewsResponse firstPage = getCryptoNews(cryptoPanicKey, String.valueOf(START_PAGE));
-        List<CryptoNews> news = IntStream.rangeClosed(START_PAGE + 1, 9)
+        List<CryptoNews> news = IntStream.rangeClosed(START_PAGE + 1, 10)
                 .mapToObj(page -> getCryptoNews(cryptoPanicKey, String.valueOf(page)))
                 .map(CryptoNewsResponse::getResults)
                 .flatMap(List::stream)
@@ -94,7 +96,7 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
 
     private CryptoNewsResponse getCryptoNews(String cryptoPanicKey, String page) {
         try {
-            TimeUnit.SECONDS.sleep(5L);
+            TimeUnit.SECONDS.sleep(3L);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -106,6 +108,5 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
                 "&page=" + page;
         ResponseEntity<CryptoNewsResponse> responseEntity = getRestTemplate().getForEntity(apiUrl, CryptoNewsResponse.class);
         return responseEntity.getBody();
-
     }
 }
