@@ -6,6 +6,7 @@ import com.delphian.bush.util.json.NewsJsonServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,41 +34,50 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
                 return getCryptoNews(cryptoPanicKey, String.valueOf(START_PAGE));
             }
 
-            if (!sourceOffset.isPresent()) {
-                CryptoNewsResponse firstPage = getCryptoNews(cryptoPanicKey, String.valueOf(START_PAGE));
-                List<CryptoNews> news = IntStream.rangeClosed(START_PAGE + 1, 9)
-                        .mapToObj(page -> getCryptoNews(cryptoPanicKey, String.valueOf(page)))
-                        .map(CryptoNewsResponse::getResults)
-                        .flatMap(List::stream)
-                        .collect(Collectors.toList());
-                firstPage.getResults().addAll(news);
-                return firstPage;
+            if (sourceOffset.isEmpty()) { // First poll. Fetch all pages
+                return getAllPages(cryptoPanicKey);
             }
 
-            List<CryptoNewsResponse> pagedResponses = new ArrayList<>();
-            long page = 1;
-
-            CryptoNewsResponse firstPage = getCryptoNews(cryptoPanicKey, String.valueOf(page));
-            boolean containsLatestSourceOffset = firstPage.getResults().stream()
-                    .anyMatch(n -> sourceOffset.get().equals(Long.parseLong(n.getId())));
-            boolean hasNext = firstPage.getNext() != null || !firstPage.getNext().equals("null");
-
-            while (!containsLatestSourceOffset && hasNext) {
-                page++;
-                CryptoNewsResponse cryptoNewsNormal = getCryptoNews(cryptoPanicKey, String.valueOf(page));
-                pagedResponses.add(cryptoNewsNormal);
-                containsLatestSourceOffset = firstPage.getResults().stream()
-                        .anyMatch(n -> sourceOffset.get().equals(Long.parseLong(n.getId())));
-                hasNext = firstPage.getNext() != null || !firstPage.getNext().equals("null");
-            }
-
-            List<CryptoNews> news = pagedResponses.stream()
-                    .map(CryptoNewsResponse::getResults)
-                    .flatMap(List::stream)
-                    .collect(Collectors.toList());
-            firstPage.getResults().addAll(news);
-            return firstPage;
+            return getNewsFilteredByLatestOffset(cryptoPanicKey, sourceOffset);
         }
+    }
+
+    @SuppressWarnings("all")
+    private CryptoNewsResponse getNewsFilteredByLatestOffset(String cryptoPanicKey, Optional<Long> sourceOffset) {
+        List<CryptoNewsResponse> pagedResponses = new ArrayList<>();
+        long page = 1;
+
+        CryptoNewsResponse firstPage = getCryptoNews(cryptoPanicKey, String.valueOf(page));
+        boolean containsLatestSourceOffset = firstPage.getResults().stream()
+                .anyMatch(n -> sourceOffset.get().equals(Long.parseLong(n.getId())));
+        boolean hasNext = firstPage.getNext() != null || !firstPage.getNext().equals("null");
+
+        while (!containsLatestSourceOffset && hasNext) {
+            page++;
+            CryptoNewsResponse cryptoNewsNormal = getCryptoNews(cryptoPanicKey, String.valueOf(page));
+            pagedResponses.add(cryptoNewsNormal);
+            containsLatestSourceOffset = firstPage.getResults().stream()
+                    .anyMatch(n -> sourceOffset.get().equals(Long.parseLong(n.getId())));
+            hasNext = firstPage.getNext() != null || !firstPage.getNext().equals("null");
+        }
+
+        List<CryptoNews> news = pagedResponses.stream()
+                .map(CryptoNewsResponse::getResults)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+        firstPage.getResults().addAll(news);
+        return firstPage;
+    }
+
+    private CryptoNewsResponse getAllPages(String cryptoPanicKey) {
+        CryptoNewsResponse firstPage = getCryptoNews(cryptoPanicKey, String.valueOf(START_PAGE));
+        List<CryptoNews> news = IntStream.rangeClosed(START_PAGE + 1, 9)
+                .mapToObj(page -> getCryptoNews(cryptoPanicKey, String.valueOf(page)))
+                .map(CryptoNewsResponse::getResults)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+        firstPage.getResults().addAll(news);
+        return firstPage;
     }
 
     private static CryptoNewsResponse getMockedCryptoNews() {
