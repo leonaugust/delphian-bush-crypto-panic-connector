@@ -6,7 +6,6 @@ import java.util.Optional;
 
 public interface CryptoPanicService {
 
-    CryptoNewsResponse getCryptoNewsByProfile(String profile, String cryptoPanicKey,
-                                              boolean fetchAllPreviousNews, Optional<Long> sourceOffset);
+    CryptoNewsResponse getCryptoNewsByProfile(boolean fetchAllPreviousNews, Optional<Long> sourceOffset);
 
 }
