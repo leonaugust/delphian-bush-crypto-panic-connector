@@ -32,7 +32,7 @@ public class CryptoPanicSourceTask extends SourceTask {
 
     private CryptoPanicSourceConnectorConfig config;
 
-    private CryptoPanicService cryptoPanicService = new CryptoPanicServiceImpl();
+    private final CryptoPanicService cryptoPanicService = new CryptoPanicServiceImpl(config);
 
     @Override
     public String version() {
@@ -59,9 +59,7 @@ public class CryptoPanicSourceTask extends SourceTask {
         }
         List<SourceRecord> records = new ArrayList<>();
         Optional<Long> sourceOffset = getLatestSourceOffset();
-        String profile = config.getString(PROFILE_ACTIVE_CONFIG);
-        String cryptoPanicKey = config.getString(CRYPTO_PANIC_KEY_CONFIG);
-        CryptoNewsResponse newsResponse = cryptoPanicService.getCryptoNewsByProfile(profile, cryptoPanicKey, fetchAllPreviousNews, sourceOffset);
+        CryptoNewsResponse newsResponse = cryptoPanicService.getCryptoNewsByProfile(fetchAllPreviousNews, sourceOffset);
         fetchAllPreviousNews = false;
 
         if (newsResponse != null && newsResponse.getResults() != null) {
