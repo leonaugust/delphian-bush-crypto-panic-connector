@@ -2,12 +2,10 @@ package com.delphian.bush.service;
 
 import com.delphian.bush.config.CryptoPanicSourceConnectorConfig;
 import com.delphian.bush.dto.CryptoNews;
-import com.delphian.bush.dto.CryptoNewsResponse;
 import com.delphian.bush.util.TimeUtil;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,12 +30,12 @@ class CryptoPanicServiceImplTest {
     public static final int MOCKED_NEWS_ADA_COUNT = 2;
 
     @Test
-    void getCryptoNewsByProfileTest() {
+    void getNewsWithTestProfileTest() {
         Map<String, String> properties = new HashMap<>();
         properties.put(PROFILE_ACTIVE_CONFIG, TEST_PROFILE);
         properties.put(CRYPTO_PANIC_KEY_CONFIG, null);
         CryptoPanicServiceImpl cryptoPanicService = new CryptoPanicServiceImpl(getConfig(properties));
-        List<CryptoNews> news = cryptoPanicService.getCryptoNewsByProfile(false, Optional.empty());
+        List<CryptoNews> news = cryptoPanicService.getNews(true, Optional.empty());
         Map<String, Integer> currenciesCount = getCurrenciesCount(news, true);
         assertEquals(MOCKED_NEWS_COUNT, news.size());
         assertEquals(MOCKED_NEWS_BTC_COUNT, currenciesCount.get(BTC));
@@ -48,12 +46,12 @@ class CryptoPanicServiceImplTest {
     }
 
     @Test
-    void getCryptoNewsNotFetchAllPreviousNewsTest() {
+    void getNewsRecentPageOnlyTest() {
         Map<String, String> properties = new HashMap<>();
         properties.put(PROFILE_ACTIVE_CONFIG, PROD_PROFILE);
         properties.put(CRYPTO_PANIC_KEY_CONFIG, getApiKey());
         CryptoPanicServiceImpl cryptoPanicService = new CryptoPanicServiceImpl(getConfig(properties));
-        List<CryptoNews> news = cryptoPanicService.getCryptoNewsByProfile(false, Optional.empty());
+        List<CryptoNews> news = cryptoPanicService.getNews(true, Optional.empty());
         assertEquals(20, news.size());
         String createdAt = news.get(0).getCreatedAt();
         LocalDateTime newsDate = TimeUtil.parse(createdAt);
@@ -61,12 +59,12 @@ class CryptoPanicServiceImplTest {
     }
 
     @Test
-    void getCryptoNewsSourceOffsetIsEmptyTest() {
+    void getNewsSourceOffsetIsEmptyTest() {
         Map<String, String> properties = new HashMap<>();
         properties.put(PROFILE_ACTIVE_CONFIG, PROD_PROFILE);
         properties.put(CRYPTO_PANIC_KEY_CONFIG, getApiKey());
         CryptoPanicServiceImpl cryptoPanicService = new CryptoPanicServiceImpl(getConfig(properties));
-        List<CryptoNews> news = cryptoPanicService.getCryptoNewsByProfile(true, Optional.empty());
+        List<CryptoNews> news = cryptoPanicService.getNews(false, Optional.empty());
         assertEquals(200, news.size());
         String createdAt = news.get(0).getCreatedAt();
         LocalDateTime newsDate = TimeUtil.parse(createdAt);
@@ -74,14 +72,14 @@ class CryptoPanicServiceImplTest {
     }
 
     @Test
-    void getNewsFilteredByLatestOffsetTest() {
+    void getPagesBeforeOffsetIncludingTest() {
         Map<String, String> properties = new HashMap<>();
         properties.put(PROFILE_ACTIVE_CONFIG, PROD_PROFILE);
         properties.put(CRYPTO_PANIC_KEY_CONFIG, getApiKey());
         CryptoPanicServiceImpl cryptoPanicService = new CryptoPanicServiceImpl(getConfig(properties));
-        List<CryptoNews> news = cryptoPanicService.getCryptoNewsByProfile(false, Optional.empty());
+        List<CryptoNews> news = cryptoPanicService.getNews(true, Optional.empty());
         String sourceId = news.get(news.size() / 2).getId(); // get element from the middle
-        List<CryptoNews> filteredNews = cryptoPanicService.getCryptoNewsByProfile(true, Optional.of(Long.valueOf(sourceId)));
+        List<CryptoNews> filteredNews = cryptoPanicService.getNews(false, Optional.of(Long.valueOf(sourceId)));
         assertEquals(20, filteredNews.size());
     }
 

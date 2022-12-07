@@ -2,7 +2,6 @@ package com.delphian.bush;
 
 import com.delphian.bush.config.CryptoPanicSourceConnectorConfig;
 import com.delphian.bush.dto.CryptoNews;
-import com.delphian.bush.dto.CryptoNewsResponse;
 import com.delphian.bush.schema.CryptoNewsSchema;
 import com.delphian.bush.service.CryptoPanicService;
 import com.delphian.bush.service.CryptoPanicServiceImpl;
@@ -28,7 +27,7 @@ public class CryptoPanicSourceTask extends SourceTask {
 
     private LocalDateTime latestPoll = null;
 
-    private boolean fetchAllPreviousNews;
+    private boolean recentPageOnly;
 
     private CryptoPanicSourceConnectorConfig config;
 
@@ -50,7 +49,7 @@ public class CryptoPanicSourceTask extends SourceTask {
         if (latestPoll == null || now().isAfter(latestPoll.plusSeconds(seconds))) {
             // If connector stopped reading due to exception or connector is just starting to read
             if (latestPoll == null || now().isAfter(latestPoll.plusHours(1))) {
-                fetchAllPreviousNews = true;
+                recentPageOnly = false;
             }
             latestPoll = LocalDateTime.now();
         } else {
@@ -59,8 +58,8 @@ public class CryptoPanicSourceTask extends SourceTask {
         }
         List<SourceRecord> records = new ArrayList<>();
         Optional<Long> sourceOffset = getLatestSourceOffset();
-        List<CryptoNews> cryptoNews = cryptoPanicService.getCryptoNewsByProfile(fetchAllPreviousNews, sourceOffset);
-        fetchAllPreviousNews = false;
+        List<CryptoNews> cryptoNews = cryptoPanicService.getNews(recentPageOnly, sourceOffset);
+        recentPageOnly = true;
 
         if (!CollectionUtils.isEmpty(cryptoNews)) {
             List<CryptoNews> filteredNews = cryptoNews.stream()

@@ -7,8 +7,6 @@ import com.delphian.bush.util.json.NewsJsonServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.NonNull;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,12 +34,12 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
     public static final int START_PAGE = 1;
 
     @Override
-    public List<CryptoNews> getCryptoNewsByProfile(boolean fetchAllPreviousNews, Optional<Long> sourceOffset) {
+    public List<CryptoNews> getNews(boolean recentPageOnly, Optional<Long> sourceOffset) {
         String profile = config.getString(PROFILE_ACTIVE_CONFIG);
         if (profile.equals(TEST_PROFILE)) {
             return getMockedCryptoNews();
         } else {
-            if (!fetchAllPreviousNews) {
+            if (recentPageOnly) {
                 return getCryptoNews(String.valueOf(START_PAGE)).getResults();
             }
 
@@ -49,12 +47,12 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
                 return getAllPages();
             }
 
-            return getNewsFilteredByLatestOffset(sourceOffset);
+            return getPagesBeforeOffsetIncluding(sourceOffset);
         }
     }
 
     @SuppressWarnings("all")
-    private List<CryptoNews> getNewsFilteredByLatestOffset(Optional<Long> sourceOffset) {
+    private List<CryptoNews> getPagesBeforeOffsetIncluding(Optional<Long> sourceOffset) {
         List<CryptoNews> cryptoNews = new ArrayList<>();
         long page = 1;
 
