@@ -59,11 +59,11 @@ public class CryptoPanicSourceTask extends SourceTask {
         }
         List<SourceRecord> records = new ArrayList<>();
         Optional<Long> sourceOffset = getLatestSourceOffset();
-        CryptoNewsResponse newsResponse = cryptoPanicService.getCryptoNewsByProfile(fetchAllPreviousNews, sourceOffset);
+        List<CryptoNews> cryptoNews = cryptoPanicService.getCryptoNewsByProfile(fetchAllPreviousNews, sourceOffset);
         fetchAllPreviousNews = false;
 
-        if (newsResponse != null && newsResponse.getResults() != null) {
-            List<CryptoNews> filteredNews = newsResponse.getResults().stream()
+        if (!CollectionUtils.isEmpty(cryptoNews)) {
+            List<CryptoNews> filteredNews = cryptoNews.stream()
                     .filter(n -> {
                         if (sourceOffset.isPresent()) {
 //                            log.info("Latest offset is not null, additional checking required");

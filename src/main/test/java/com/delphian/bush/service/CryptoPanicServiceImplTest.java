@@ -1,6 +1,7 @@
 package com.delphian.bush.service;
 
 import com.delphian.bush.config.CryptoPanicSourceConnectorConfig;
+import com.delphian.bush.dto.CryptoNews;
 import com.delphian.bush.dto.CryptoNewsResponse;
 import com.delphian.bush.util.TimeUtil;
 import org.junit.jupiter.api.Test;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -35,9 +37,9 @@ class CryptoPanicServiceImplTest {
         properties.put(PROFILE_ACTIVE_CONFIG, TEST_PROFILE);
         properties.put(CRYPTO_PANIC_KEY_CONFIG, null);
         CryptoPanicServiceImpl cryptoPanicService = new CryptoPanicServiceImpl(getConfig(properties));
-        CryptoNewsResponse response = cryptoPanicService.getCryptoNewsByProfile(false, Optional.empty());
-        Map<String, Integer> currenciesCount = getCurrenciesCount(response.getResults(), true);
-        assertEquals(MOCKED_NEWS_COUNT, response.getResults().size());
+        List<CryptoNews> news = cryptoPanicService.getCryptoNewsByProfile(false, Optional.empty());
+        Map<String, Integer> currenciesCount = getCurrenciesCount(news, true);
+        assertEquals(MOCKED_NEWS_COUNT, news.size());
         assertEquals(MOCKED_NEWS_BTC_COUNT, currenciesCount.get(BTC));
         assertEquals(MOCKED_NEWS_NULL_COUNT, currenciesCount.get(null));
         assertEquals(MOCKED_NEWS_ETH_COUNT, currenciesCount.get(ETH));
@@ -51,9 +53,9 @@ class CryptoPanicServiceImplTest {
         properties.put(PROFILE_ACTIVE_CONFIG, PROD_PROFILE);
         properties.put(CRYPTO_PANIC_KEY_CONFIG, getApiKey());
         CryptoPanicServiceImpl cryptoPanicService = new CryptoPanicServiceImpl(getConfig(properties));
-        CryptoNewsResponse cryptoNewsResponse = cryptoPanicService.getCryptoNewsByProfile(false, Optional.empty());
-        assertEquals(20, cryptoNewsResponse.getResults().size());
-        String createdAt = cryptoNewsResponse.getResults().get(0).getCreatedAt();
+        List<CryptoNews> news = cryptoPanicService.getCryptoNewsByProfile(false, Optional.empty());
+        assertEquals(20, news.size());
+        String createdAt = news.get(0).getCreatedAt();
         LocalDateTime newsDate = TimeUtil.parse(createdAt);
         assertEquals(TimeUtil.nowFormatted().getDayOfMonth(), newsDate.getDayOfMonth());
     }
@@ -64,9 +66,9 @@ class CryptoPanicServiceImplTest {
         properties.put(PROFILE_ACTIVE_CONFIG, PROD_PROFILE);
         properties.put(CRYPTO_PANIC_KEY_CONFIG, getApiKey());
         CryptoPanicServiceImpl cryptoPanicService = new CryptoPanicServiceImpl(getConfig(properties));
-        CryptoNewsResponse cryptoNewsResponse = cryptoPanicService.getCryptoNewsByProfile(true, Optional.empty());
-        assertEquals(200, cryptoNewsResponse.getResults().size());
-        String createdAt = cryptoNewsResponse.getResults().get(0).getCreatedAt();
+        List<CryptoNews> news = cryptoPanicService.getCryptoNewsByProfile(true, Optional.empty());
+        assertEquals(200, news.size());
+        String createdAt = news.get(0).getCreatedAt();
         LocalDateTime newsDate = TimeUtil.parse(createdAt);
         assertEquals(TimeUtil.nowFormatted().getDayOfMonth(), newsDate.getDayOfMonth());
     }
@@ -77,10 +79,10 @@ class CryptoPanicServiceImplTest {
         properties.put(PROFILE_ACTIVE_CONFIG, PROD_PROFILE);
         properties.put(CRYPTO_PANIC_KEY_CONFIG, getApiKey());
         CryptoPanicServiceImpl cryptoPanicService = new CryptoPanicServiceImpl(getConfig(properties));
-        CryptoNewsResponse allPages = cryptoPanicService.getCryptoNewsByProfile(false, Optional.empty());
-        String sourceId = allPages.getResults().get(allPages.getResults().size() / 2).getId(); // get element from the middle
-        CryptoNewsResponse filteredNews = cryptoPanicService.getCryptoNewsByProfile(true, Optional.of(Long.valueOf(sourceId)));
-        assertEquals(20, filteredNews.getResults().size());
+        List<CryptoNews> news = cryptoPanicService.getCryptoNewsByProfile(false, Optional.empty());
+        String sourceId = news.get(news.size() / 2).getId(); // get element from the middle
+        List<CryptoNews> filteredNews = cryptoPanicService.getCryptoNewsByProfile(true, Optional.of(Long.valueOf(sourceId)));
+        assertEquals(20, filteredNews.size());
     }
 
     private CryptoPanicSourceConnectorConfig getConfig(Map<String, String> overriddenProperties) {
