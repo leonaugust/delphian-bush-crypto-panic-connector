@@ -1,4 +1,4 @@
-package com.delphian.bush.schema;
+package com.delphian.bush.config.schema;
 
 import com.delphian.bush.dto.Currency;
 import com.delphian.bush.util.converter.ConnectPOJOConverter;

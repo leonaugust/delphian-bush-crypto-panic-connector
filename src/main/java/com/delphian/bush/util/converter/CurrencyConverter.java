@@ -1,11 +1,11 @@
 package com.delphian.bush.util.converter;
 
 import com.delphian.bush.dto.Currency;
-import com.delphian.bush.schema.CurrencySchema;
+import com.delphian.bush.config.schema.CurrencySchema;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 
-import static com.delphian.bush.schema.CurrencySchema.CURRENCY_SCHEMA;
+import static com.delphian.bush.config.schema.CurrencySchema.CURRENCY_SCHEMA;
 
 public class CurrencyConverter implements ConnectPOJOConverter<Currency> {
     public static final CurrencyConverter INSTANCE = new CurrencyConverter();
