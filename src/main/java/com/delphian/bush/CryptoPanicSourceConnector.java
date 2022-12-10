@@ -8,13 +8,11 @@ import org.apache.kafka.connect.source.SourceConnector;
 
 import java.util.*;
 
-// Should load the configs and create a few tasks
 public class CryptoPanicSourceConnector extends SourceConnector {
     private CryptoPanicSourceConnectorConfig config;
 
     @Override
     public void start(Map<String, String> props) {
-        // The complete version includes error handling as well.
         config = new CryptoPanicSourceConnectorConfig(props);
     }
 
