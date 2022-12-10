@@ -1,7 +1,7 @@
 package com.delphian.bush.util.converter;
 
 import com.delphian.bush.dto.NewsSource;
-import com.delphian.bush.schema.NewsSourceSchema;
+import com.delphian.bush.config.schema.NewsSourceSchema;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 

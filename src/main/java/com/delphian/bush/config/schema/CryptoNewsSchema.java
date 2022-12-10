@@ -1,12 +1,12 @@
-package com.delphian.bush.schema;
+package com.delphian.bush.config.schema;
 
 import com.delphian.bush.dto.CryptoNews;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 
 import static com.delphian.bush.config.CryptoPanicSourceConnectorConfig.APPLICATION_CONFIG;
-import static com.delphian.bush.schema.CurrencySchema.*;
-import static com.delphian.bush.schema.NewsSourceSchema.SOURCE_SCHEMA;
+import static com.delphian.bush.config.schema.CurrencySchema.*;
+import static com.delphian.bush.config.schema.NewsSourceSchema.SOURCE_SCHEMA;
 import static com.delphian.bush.util.VersionUtil.FIRST_VERSION;
 
 public class CryptoNewsSchema {

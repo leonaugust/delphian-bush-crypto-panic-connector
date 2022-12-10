@@ -2,9 +2,9 @@ package com.delphian.bush.util.converter;
 
 import com.delphian.bush.dto.CryptoNews;
 import com.delphian.bush.dto.Currency;
-import com.delphian.bush.schema.CryptoNewsSchema;
-import com.delphian.bush.schema.CurrencySchema;
-import com.delphian.bush.schema.NewsSourceSchema;
+import com.delphian.bush.config.schema.CryptoNewsSchema;
+import com.delphian.bush.config.schema.CurrencySchema;
+import com.delphian.bush.config.schema.NewsSourceSchema;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.delphian.bush.schema.CurrencySchema.CONVERTER;
+import static com.delphian.bush.config.schema.CurrencySchema.CONVERTER;
 
 public class CryptoNewsConverter implements ConnectPOJOConverter<CryptoNews> {
     public static final CryptoNewsConverter INSTANCE = new CryptoNewsConverter();
