@@ -98,15 +98,12 @@ public class CryptoPanicSourceTask extends SourceTask {
         );
     }
 
-    // Track which source we have been reading.
     private Map<String, String> sourcePartition() {
         Map<String, String> partitionProperties = new HashMap<>();
         partitionProperties.put(APPLICATION_CONFIG, config.getString(APPLICATION_CONFIG));
         return partitionProperties;
     }
 
-    //  Track the exact place we have been reading
-    // do something with pagination and size
     private Map<String, String> sourceOffset(CryptoNews cryptoNews) {
         Map<String, String> map = new HashMap<>();
         map.put(CryptoNewsSchema.ID_FIELD, cryptoNews.getId());
@@ -114,16 +111,13 @@ public class CryptoPanicSourceTask extends SourceTask {
     }
 
     private Struct buildRecordKey(CryptoNews news) {
-        // Key Schema
         return new Struct(CryptoNewsSchema.NEWS_KEY_SCHEMA)
                 .put(APPLICATION_CONFIG, config.getString(APPLICATION_CONFIG))
                 .put(CryptoNewsSchema.ID_FIELD, news.getId());
     }
 
     public Struct buildRecordValue(CryptoNews cryptoNews) {
-        Struct struct = CryptoNewsConverter.INSTANCE.toConnectData(cryptoNews);
-//        log.debug("Resulting struct: {}", struct);
-        return struct;
+        return CryptoNewsConverter.INSTANCE.toConnectData(cryptoNews);
     }
 
     @Override
