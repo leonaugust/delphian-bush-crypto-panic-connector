@@ -37,7 +37,7 @@ Launch Kafka with docker-compose(starts on port *29092*)
 Start in standalone mode
 
     cd ..
-    mvn clean package
+    mvn clean package -DskipTests
     ./run.sh
 
 -----
