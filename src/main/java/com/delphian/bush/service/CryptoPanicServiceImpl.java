@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -32,6 +33,23 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
     public static final String TEST_PROFILE = "test";
     public static final String PROD_PROFILE = "prod";
     public static final int START_PAGE = 1;
+
+    @Override
+    public List<CryptoNews> getFilteredNews(boolean recentPageOnly, Optional<Long> sourceOffset) {
+        return  getNews(recentPageOnly, sourceOffset).stream()
+                .filter(n -> {
+                    if (sourceOffset.isPresent()) {
+//                            log.info("Latest offset is not null, additional checking required");
+//                            log.info("newsId: [{}] is bigger than latestOffset: [{}], added news to result", Long.parseLong(n.getId()), sourceOffset.get());
+                        return Long.parseLong(n.getId()) > sourceOffset.get();
+                    } else {
+//                            log.info("Latest offset was null, added news to result");
+                        return true;
+                    }
+                })
+                .sorted(Comparator.comparing(CryptoNews::getId))
+                .collect(Collectors.toList());
+    }
 
     @Override
     public List<CryptoNews> getNews(boolean recentPageOnly, Optional<Long> sourceOffset) {
