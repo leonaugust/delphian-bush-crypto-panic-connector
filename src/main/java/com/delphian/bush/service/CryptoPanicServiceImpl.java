@@ -61,7 +61,7 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
                 return getCryptoNews(String.valueOf(START_PAGE)).getResults();
             }
 
-            if (sourceOffset.isEmpty()) { // First poll. Fetch all pages
+            if (!sourceOffset.isPresent()) { // First poll. Fetch all pages
                 return getAllPages();
             }
 

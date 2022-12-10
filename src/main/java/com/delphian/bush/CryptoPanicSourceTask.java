@@ -31,7 +31,7 @@ public class CryptoPanicSourceTask extends SourceTask {
 
     private CryptoPanicSourceConnectorConfig config;
 
-    private final CryptoPanicService cryptoPanicService = new CryptoPanicServiceImpl(config);
+    private CryptoPanicService cryptoPanicService;
 
     @Override
     public String version() {
@@ -41,6 +41,7 @@ public class CryptoPanicSourceTask extends SourceTask {
     @Override
     public void start(Map<String, String> props) {
         config = new CryptoPanicSourceConnectorConfig(props);
+        cryptoPanicService = new CryptoPanicServiceImpl(config);
     }
 
     @Override
