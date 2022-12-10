@@ -53,15 +53,11 @@ Read data
     --topic news \
     --from-beginning
 
-Stop connector
-
-    docker container stop news-connector
 -----
 
-Clean up data written to Kafka by removing all containers and volumes(*Be careful, this will delete all containers*)
+Stop connector and clean up data written to Kafka
 
     cd kafka
+    docker container stop news-connector
     docker-compose down --volumes
-    docker container prune
-    docker volume prune
 -----
