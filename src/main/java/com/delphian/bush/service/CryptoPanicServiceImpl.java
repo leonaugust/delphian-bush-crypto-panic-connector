@@ -17,8 +17,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.delphian.bush.config.CryptoPanicSourceConnectorConfig.CRYPTO_PANIC_KEY_CONFIG;
-import static com.delphian.bush.config.CryptoPanicSourceConnectorConfig.PROFILE_ACTIVE_CONFIG;
+import static com.delphian.bush.config.CryptoPanicSourceConnectorConfig.*;
 import static com.delphian.bush.util.WebUtil.getRestTemplate;
 
 @Slf4j
@@ -36,14 +35,22 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
 
     @Override
     public List<CryptoNews> getFilteredNews(boolean recentPageOnly, Optional<Long> sourceOffset) {
+        Boolean additionalDebugEnabled = config.getBoolean(DEBUG_ADDITIONAL_INFO);
+        if (additionalDebugEnabled) {
+            log.info("Latest sourceOffset is not null, additional checking required");
+        }
+
         return  getNews(recentPageOnly, sourceOffset).stream()
                 .filter(n -> {
                     if (sourceOffset.isPresent()) {
-//                            log.info("Latest offset is not null, additional checking required");
-//                            log.info("newsId: [{}] is bigger than latestOffset: [{}], added news to result", Long.parseLong(n.getId()), sourceOffset.get());
-                        return Long.parseLong(n.getId()) > sourceOffset.get();
+                        if (additionalDebugEnabled) {
+                            log.info("newsId: [{}] is bigger than latestOffset: [{}], added news to result", Long.parseLong(n.getId()), sourceOffset.get());
+                        }
+                            return Long.parseLong(n.getId()) > sourceOffset.get();
                     } else {
-//                            log.info("Latest offset was null, added news to result");
+                        if (additionalDebugEnabled) {
+                            log.info("Latest offset was null, added news to result");
+                        }
                         return true;
                     }
                 })
@@ -106,7 +113,7 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
             log.info("Response from mocked-news file");
             return new NewsJsonServiceImpl(new ObjectMapper()).getFromJson().getResults();
         } catch (IOException e) {
-            log.error("Something happened. {}", e.getMessage());
+            log.error("Exception occurred: {}", e.getMessage());
             throw new RuntimeException();
         }
     }
