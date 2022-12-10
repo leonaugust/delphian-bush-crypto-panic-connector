@@ -37,7 +37,6 @@ public class CryptoPanicSourceConnector extends SourceConnector {
 
     @Override
     public ConfigDef config() {
-        // TODO. Can add validators here
         return CryptoPanicSourceConnectorConfig.conf();
     }
 
