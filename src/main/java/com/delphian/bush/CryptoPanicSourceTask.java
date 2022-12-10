@@ -77,7 +77,7 @@ public class CryptoPanicSourceTask extends SourceTask {
             Object id = offset.get("id");
             if (id != null) {
                 Long latestOffset = Long.valueOf((String) id);
-                log.info("Offset information: {}", latestOffset);
+                log.info("latestOffset: {}", latestOffset);
                 return Optional.of(latestOffset);
             }
         }
