@@ -12,7 +12,7 @@ Add your properties in the following directory /config/custom-connector.properti
     poll.timeout=60
 
 Configurable parameters:
-* `profile.active` - Available values: [test/prod].  
+* `profile.active` - Default: **test**. Available values: [test/prod].  
 **test** - will poll 20 mocked news  
 **prod** - will call real crypto-panic api, requires 
 
@@ -21,10 +21,10 @@ Will be included in your key schema
 
 * `topic` - Name of the topic to which kafka will push the data  
 
-* `poll.timeout` - Time in seconds between the poll
+* `poll.timeout` - Default: 60. Should be bigger than 10. Time in seconds between the poll.
 
-* `name` - The last offset will be associated with the name given. For testing purposes, change name.
-Otherwise, the connector will keep the latest offset of the records
+* `name` - The last offset will be associated with the name given. **Side note**: for testing purposes, change name after each start.
+Otherwise, the connector will keep the latest offset to track the place where he left
 
 Additional properties:
 * `debug.additional.info` - Optional(default - false). Available values: [true/false].
