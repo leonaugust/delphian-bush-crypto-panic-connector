@@ -26,6 +26,11 @@ Will be included in your key schema
 * `name` - The last offset will be associated with the name given. For testing purposes, change name.
 Otherwise, the connector will keep the latest offset of the records
 
+Additional properties:
+* `debug.additional.info` - Optional(default - false). Available values: [true/false].
+Enables logging of the additional information.
+
+
 -----
 **Testing in standalone mode**
 
