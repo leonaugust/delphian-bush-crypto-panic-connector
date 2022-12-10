@@ -7,6 +7,8 @@ import java.util.Optional;
 
 public interface CryptoPanicService {
 
+    List<CryptoNews> getFilteredNews(boolean recentPageOnly, Optional<Long> sourceOffset);
+
     List<CryptoNews> getNews(boolean recentPageOnly, Optional<Long> sourceOffset);
 
 }

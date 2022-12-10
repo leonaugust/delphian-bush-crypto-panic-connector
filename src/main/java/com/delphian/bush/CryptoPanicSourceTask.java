@@ -56,34 +56,14 @@ public class CryptoPanicSourceTask extends SourceTask {
             log.info("Poll timeout: [{}] seconds", seconds);
             TimeUnit.SECONDS.sleep(seconds);
         }
-        List<SourceRecord> records = new ArrayList<>();
         Optional<Long> sourceOffset = getLatestSourceOffset();
-        List<CryptoNews> cryptoNews = cryptoPanicService.getNews(recentPageOnly, sourceOffset);
+        List<CryptoNews> filteredNews = cryptoPanicService.getFilteredNews(recentPageOnly, sourceOffset);
         recentPageOnly = true;
 
-        if (!CollectionUtils.isEmpty(cryptoNews)) {
-            List<CryptoNews> filteredNews = cryptoNews.stream()
-                    .filter(n -> {
-                        if (sourceOffset.isPresent()) {
-//                            log.info("Latest offset is not null, additional checking required");
-                            if (Long.parseLong(n.getId()) > sourceOffset.get()) {
-//                                log.info("newsId: [{}] is bigger than latestOffset: [{}], added news to result", Long.parseLong(n.getId()), sourceOffset.get());
-                                return true;
-                            }
-                        } else {
-//                            log.info("Latest offset was null, added news to result");
-                            return true;
-                        }
-                        return false;
-                    })
-                    .sorted(Comparator.comparing(CryptoNews::getId))
-                    .collect(Collectors.toList());
-
-            log.info("The amount of filtered news which offset is greater than sourceOffset: {}", filteredNews.size());
-            if (!CollectionUtils.isEmpty(filteredNews)) {
-                for (CryptoNews news : filteredNews) {
-                    records.add(generateRecordFromNews(news));
-                }
+        List<SourceRecord> records = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(filteredNews)) {
+            for (CryptoNews news : filteredNews) {
+                records.add(generateRecordFromNews(news));
             }
         }
 

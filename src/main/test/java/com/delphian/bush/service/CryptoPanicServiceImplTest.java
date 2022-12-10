@@ -6,10 +6,8 @@ import com.delphian.bush.util.TimeUtil;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.delphian.bush.config.CryptoPanicSourceConnectorConfig.CRYPTO_PANIC_KEY_CONFIG;
 import static com.delphian.bush.config.CryptoPanicSourceConnectorConfig.PROFILE_ACTIVE_CONFIG;
@@ -28,6 +26,34 @@ class CryptoPanicServiceImplTest {
     public static final int MOCKED_NEWS_ETH_COUNT = 2;
     public static final int MOCKED_NEWS_RUNE_COUNT = 1;
     public static final int MOCKED_NEWS_ADA_COUNT = 2;
+
+    @Test
+    void getFilteredNewsIsSortedTest() {
+        Map<String, String> properties = new HashMap<>();
+        properties.put(PROFILE_ACTIVE_CONFIG, PROD_PROFILE);
+        properties.put(CRYPTO_PANIC_KEY_CONFIG, getApiKey());
+        CryptoPanicServiceImpl cryptoPanicService = new CryptoPanicServiceImpl(getConfig(properties));
+        List<CryptoNews> news = cryptoPanicService.getFilteredNews(true, Optional.empty());
+        assertEquals(20, news.size());
+
+        List<CryptoNews> expectedSorted = news.stream().sorted(Comparator.comparing(CryptoNews::getId))
+                .collect(Collectors.toList());
+        assertEquals(expectedSorted, news);
+    }
+
+    @Test
+    void getFilteredNewsFilteredByOffsetTest() {
+        Map<String, String> properties = new HashMap<>();
+        properties.put(PROFILE_ACTIVE_CONFIG, PROD_PROFILE);
+        properties.put(CRYPTO_PANIC_KEY_CONFIG, getApiKey());
+        CryptoPanicServiceImpl cryptoPanicService = new CryptoPanicServiceImpl(getConfig(properties));
+        List<CryptoNews> news = cryptoPanicService.getFilteredNews(true, Optional.empty());
+        int pivot = news.size() / 2; ;
+        Long offset = Long.valueOf(news.get(pivot - 1).getId());
+        List<CryptoNews> filtered = cryptoPanicService.getFilteredNews(true, Optional.of(offset));
+        assertTrue(filtered.size() < news.size());
+        assertEquals(pivot, filtered.size());
+    }
 
     @Test
     void getNewsWithTestProfileTest() {
