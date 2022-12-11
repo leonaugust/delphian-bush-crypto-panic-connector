@@ -45,16 +45,16 @@ public class CryptoPanicSourceTask extends SourceTask {
 
     @Override
     public List<SourceRecord> poll() throws InterruptedException {
-        Long seconds = config.getLong(POLL_TIMEOUT_CONFIG);
-        if (latestPoll == null || now().isAfter(latestPoll.plusSeconds(seconds))) {
+        Long timeoutSeconds = config.getLong(POLL_TIMEOUT_CONFIG);
+        if (latestPoll == null || now().isAfter(latestPoll.plusSeconds(timeoutSeconds))) {
             // If connector stopped reading due to exception or connector is just starting to read
             if (latestPoll == null || now().isAfter(latestPoll.plusHours(1))) {
                 recentPageOnly = false;
             }
             latestPoll = LocalDateTime.now();
         } else {
-            log.info("Poll timeout: [{}] seconds", seconds);
-            TimeUnit.SECONDS.sleep(seconds);
+            log.info("Poll timeout: [{}] seconds", timeoutSeconds);
+            TimeUnit.SECONDS.sleep(timeoutSeconds);
         }
         Optional<Long> sourceOffset = getLatestSourceOffset();
         List<CryptoNews> filteredNews = cryptoPanicService.getFilteredNews(recentPageOnly, sourceOffset);
