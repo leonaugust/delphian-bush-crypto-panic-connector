@@ -3,10 +3,12 @@ package com.delphian.bush.service;
 import com.delphian.bush.config.CryptoPanicSourceConnectorConfig;
 import com.delphian.bush.dto.CryptoNews;
 import com.delphian.bush.util.TimeUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.delphian.bush.config.CryptoPanicSourceConnectorConfig.CRYPTO_PANIC_KEY_CONFIG;
@@ -26,6 +28,11 @@ class CryptoPanicServiceImplTest {
     public static final int MOCKED_NEWS_ETH_COUNT = 2;
     public static final int MOCKED_NEWS_RUNE_COUNT = 1;
     public static final int MOCKED_NEWS_ADA_COUNT = 2;
+
+    @BeforeEach
+    public void waitApiTimeout() throws InterruptedException {
+        TimeUnit.SECONDS.sleep(10L);
+    }
 
     @Test
     void getFilteredNewsIsSortedTest() {

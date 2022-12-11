@@ -66,7 +66,7 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
             return getMockedCryptoNews();
         } else {
             if (recentPageOnly) {
-                return getCryptoNews(String.valueOf(START_PAGE), 0).getResults();
+                return getNewsFromApi(String.valueOf(START_PAGE), 0).getResults();
             }
 
             if (!sourceOffset.isPresent()) { // First poll. Fetch all pages
@@ -82,7 +82,7 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
         List<CryptoNews> cryptoNews = new ArrayList<>();
         long page = 1;
 
-        CryptoNewsResponse firstPage = getCryptoNews(String.valueOf(page), 3);
+        CryptoNewsResponse firstPage = getNewsFromApi(String.valueOf(page), 3);
         cryptoNews.addAll(firstPage.getResults());
         boolean containsLatestSourceOffset = firstPage.getResults().stream()
                 .anyMatch(n -> sourceOffset.get().equals(Long.parseLong(n.getId())));
@@ -90,7 +90,7 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
 
         while (!containsLatestSourceOffset && hasNext) {
             page++;
-            CryptoNewsResponse cryptoNewsNormal = getCryptoNews(String.valueOf(page), 3);
+            CryptoNewsResponse cryptoNewsNormal = getNewsFromApi(String.valueOf(page), 4);
             cryptoNews.addAll(cryptoNewsNormal.getResults());
             containsLatestSourceOffset = firstPage.getResults().stream()
                     .anyMatch(n -> sourceOffset.get().equals(Long.parseLong(n.getId())));
@@ -102,7 +102,7 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
 
     private List<CryptoNews> getAllPages() {
         return IntStream.rangeClosed(START_PAGE, 10)
-                .mapToObj(page -> getCryptoNews(String.valueOf(page), 3))
+                .mapToObj(page -> getNewsFromApi(String.valueOf(page), 4))
                 .map(CryptoNewsResponse::getResults)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
@@ -120,7 +120,7 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
     }
 
 
-    private CryptoNewsResponse getCryptoNews(String page, int timeoutSeconds) {
+    private CryptoNewsResponse getNewsFromApi(String page, int timeoutSeconds) {
         if (timeoutSeconds > 0) {
             try {
                 TimeUnit.SECONDS.sleep(timeoutSeconds);
@@ -139,6 +139,10 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
                 .header("accept", "application/json")
                 .queryString(params)
                 .asJson();
+        if (response == null || response.getBody() == null) {
+            throw new RuntimeException("Api Returned incorrect response");
+        }
+
         try {
             return new ObjectMapper().readValue(response.getBody().toString(), CryptoNewsResponse.class);
         } catch (JsonProcessingException e) {
