@@ -1,8 +1,8 @@
 package com.delphian.bush;
 
 import com.delphian.bush.config.CryptoPanicSourceConnectorConfig;
-import com.delphian.bush.dto.CryptoNews;
 import com.delphian.bush.config.schema.CryptoNewsSchema;
+import com.delphian.bush.dto.CryptoNews;
 import com.delphian.bush.service.CryptoPanicService;
 import com.delphian.bush.service.CryptoPanicServiceImpl;
 import com.delphian.bush.util.VersionUtil;
@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.source.SourceTask;
-import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -63,7 +62,7 @@ public class CryptoPanicSourceTask extends SourceTask {
         recentPageOnly = true;
 
         List<SourceRecord> records = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(filteredNews)) {
+        if (filteredNews != null && !filteredNews.isEmpty()) {
             for (CryptoNews news : filteredNews) {
                 records.add(generateRecordFromNews(news));
             }

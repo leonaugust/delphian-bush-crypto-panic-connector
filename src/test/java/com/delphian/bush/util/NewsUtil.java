@@ -2,7 +2,6 @@ package com.delphian.bush.util;
 
 import com.delphian.bush.dto.CryptoNews;
 import com.delphian.bush.dto.Currency;
-import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +26,7 @@ public class NewsUtil {
 
     private static String mapCurrencyCode(CryptoNews news) {
         List<Currency> currencies = news.getCurrencies();
-        if (CollectionUtils.isEmpty(currencies)) {
+        if (currencies == null || currencies.isEmpty()) {
             return null;
         }
 
