@@ -61,3 +61,8 @@ Stop connector and clean up data written to Kafka
     docker container stop news-connector
     docker-compose down --volumes
 -----
+**Setup in cluster**
+
+    Produces fat jar crypto-panic-connector-VERSION-jar-with-dependencies.jar
+
+    mvn clean package -DskipTests
