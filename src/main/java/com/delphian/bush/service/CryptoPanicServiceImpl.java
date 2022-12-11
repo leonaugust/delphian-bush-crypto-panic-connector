@@ -4,21 +4,20 @@ import com.delphian.bush.config.CryptoPanicSourceConnectorConfig;
 import com.delphian.bush.dto.CryptoNews;
 import com.delphian.bush.dto.CryptoNewsResponse;
 import com.delphian.bush.util.json.NewsJsonServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kong.unirest.HttpResponse;
+import kong.unirest.JsonNode;
+import kong.unirest.Unirest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.delphian.bush.config.CryptoPanicSourceConnectorConfig.*;
-import static com.delphian.bush.util.WebUtil.getRestTemplate;
 
 @Slf4j
 public class CryptoPanicServiceImpl implements CryptoPanicService {
@@ -120,7 +119,6 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
 
 
     private CryptoNewsResponse getCryptoNews(String page) {
-        String cryptoPanicKey = config.getString(CRYPTO_PANIC_KEY_CONFIG);
         try {
             TimeUnit.SECONDS.sleep(3L);
         } catch (InterruptedException e) {
@@ -128,11 +126,19 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
         }
 
         log.info("Getting news from API");
-        String apiUrl = "https://cryptopanic.com/api/v1/posts/" +
-                "?auth_token=" + cryptoPanicKey +
-                "&public=true" +
-                "&page=" + page;
-        ResponseEntity<CryptoNewsResponse> responseEntity = getRestTemplate().getForEntity(apiUrl, CryptoNewsResponse.class);
-        return responseEntity.getBody();
+        Map<String, Object> params = new HashMap<>();
+        params.put("auth_token", config.getString(CRYPTO_PANIC_KEY_CONFIG));
+        params.put("public", "true");
+        params.put("page", page);
+        String apiUrl = "https://cryptopanic.com/api/v1/posts/";
+        HttpResponse<JsonNode> response = Unirest.get(apiUrl)
+                .header("accept", "application/json")
+                .queryString(params)
+                .asJson();
+        try {
+            return new ObjectMapper().readValue(response.getBody().toString(), CryptoNewsResponse.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 }
