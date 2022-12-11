@@ -39,13 +39,13 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
             log.info("Latest sourceOffset is not null, additional checking required");
         }
 
-        return  getNews(recentPageOnly, sourceOffset).stream()
+        List<CryptoNews> filtered = getNews(recentPageOnly, sourceOffset).stream()
                 .filter(n -> {
                     if (sourceOffset.isPresent()) {
                         if (additionalDebugEnabled) {
                             log.info("newsId: [{}] is bigger than latestOffset: [{}], added news to result", Long.parseLong(n.getId()), sourceOffset.get());
                         }
-                            return Long.parseLong(n.getId()) > sourceOffset.get();
+                        return Long.parseLong(n.getId()) > sourceOffset.get();
                     } else {
                         if (additionalDebugEnabled) {
                             log.info("Latest offset was null, added news to result");
@@ -55,6 +55,8 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
                 })
                 .sorted(Comparator.comparing(CryptoNews::getId))
                 .collect(Collectors.toList());
+        log.info("The amount of filtered news which offset is greater than sourceOffset: {}", filtered.size());
+        return filtered;
     }
 
     @Override
