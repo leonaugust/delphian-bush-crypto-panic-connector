@@ -6,7 +6,7 @@
 
     <groupId>com.delphian.bush</groupId>
     <artifactId>crypto-panic-connector</artifactId>
-    <version>1.0</version>
+    <version>0.0.1</version>
     <packaging>jar</packaging>
 
     <properties>
