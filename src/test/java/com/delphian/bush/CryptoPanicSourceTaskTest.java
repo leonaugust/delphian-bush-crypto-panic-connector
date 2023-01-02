@@ -5,9 +5,9 @@ import com.delphian.bush.dto.Currency;
 import com.delphian.bush.dto.NewsSource;
 import com.delphian.bush.config.schema.CurrencySchema;
 import com.delphian.bush.config.schema.NewsSourceSchema;
-import com.delphian.bush.util.converter.CryptoNewsConverter;
-import com.delphian.bush.util.converter.CurrencyConverter;
-import com.delphian.bush.util.converter.NewsSourceConverter;
+import com.delphian.bush.util.mapper.CryptoNewsMapper;
+import com.delphian.bush.util.mapper.CurrencyMapper;
+import com.delphian.bush.util.mapper.NewsSourceMapper;
 import org.apache.kafka.connect.data.Struct;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -57,11 +57,11 @@ public class CryptoPanicSourceTaskTest {
         assertDoesNotThrow(struct::validate);
 
         Struct newsFromStruct = (Struct) struct.get(NewsSourceSchema.SCHEMA_NAME);
-        assertEqualsNewsSource(newsSource, NewsSourceConverter.INSTANCE.fromConnectData(newsFromStruct));
+        assertEqualsNewsSource(newsSource, NewsSourceMapper.INSTANCE.to(newsFromStruct));
 
         List<Struct> currenciesFromStruct = (List<Struct>) struct.get(CurrencySchema.SCHEMA_NAME);
         assertEqualsCurrencies(Collections.singletonList(currency),
-                currenciesFromStruct.stream().map(c -> CurrencyConverter.INSTANCE.fromConnectData(c))
+                currenciesFromStruct.stream().map(c -> CurrencyMapper.INSTANCE.to(c))
                         .collect(Collectors.toList())
         );
 
@@ -70,7 +70,7 @@ public class CryptoPanicSourceTaskTest {
     }
 
     private void assertEqualsCryptoNews(CryptoNews expected, Struct struct) {
-        CryptoNews actual = CryptoNewsConverter.INSTANCE.fromConnectData(struct);
+        CryptoNews actual = CryptoNewsMapper.INSTANCE.to(struct);
         assertEquals(expected.getKind(), actual.getKind());
         assertEquals(expected.getDomain(), actual.getDomain());
         assertEquals(expected.getTitle(), actual.getTitle());

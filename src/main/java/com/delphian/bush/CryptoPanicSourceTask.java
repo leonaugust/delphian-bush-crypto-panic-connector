@@ -6,7 +6,7 @@ import com.delphian.bush.dto.CryptoNews;
 import com.delphian.bush.service.CryptoPanicService;
 import com.delphian.bush.service.CryptoPanicServiceImpl;
 import com.delphian.bush.util.VersionUtil;
-import com.delphian.bush.util.converter.CryptoNewsConverter;
+import com.delphian.bush.util.mapper.CryptoNewsMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
@@ -157,7 +157,7 @@ public class CryptoPanicSourceTask extends SourceTask {
      * @return Struct value from news.
      */
     public Struct buildRecordValue(CryptoNews cryptoNews) {
-        return CryptoNewsConverter.INSTANCE.toConnectData(cryptoNews);
+        return CryptoNewsMapper.INSTANCE.to(cryptoNews);
     }
 
     /**

@@ -1,12 +1,12 @@
-package com.delphian.bush.util.converter;
+package com.delphian.bush.util.mapper;
 
 import com.delphian.bush.dto.NewsSource;
 import com.delphian.bush.config.schema.NewsSourceSchema;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 
-public class NewsSourceConverter implements ConnectPOJOConverter<NewsSource> {
-    public static final NewsSourceConverter INSTANCE = new NewsSourceConverter();
+public class NewsSourceMapper implements ConnectDataMapper<NewsSource> {
+    public static final NewsSourceMapper INSTANCE = new NewsSourceMapper();
 
     /**
      *
@@ -22,8 +22,7 @@ public class NewsSourceConverter implements ConnectPOJOConverter<NewsSource> {
      * @inheritDoc
      */
     @Override
-    public NewsSource fromConnectData(Struct s) {
-        // simple conversion, but more complex types could throw errors
+    public NewsSource to(Struct s) {
         return NewsSource.builder()
                 .title(s.getString(NewsSourceSchema.TITLE_FIELD))
                 .region(s.getString(NewsSourceSchema.REGION_FIELD))
@@ -37,7 +36,7 @@ public class NewsSourceConverter implements ConnectPOJOConverter<NewsSource> {
      * @inheritDoc
      */
     @Override
-    public Struct toConnectData(NewsSource c) {
+    public Struct to(NewsSource c) {
         Struct s = new Struct(getSchema());
         if (c == null) {
             return null;

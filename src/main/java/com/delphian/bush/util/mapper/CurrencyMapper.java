@@ -1,4 +1,4 @@
-package com.delphian.bush.util.converter;
+package com.delphian.bush.util.mapper;
 
 import com.delphian.bush.dto.Currency;
 import com.delphian.bush.config.schema.CurrencySchema;
@@ -7,8 +7,8 @@ import org.apache.kafka.connect.data.Struct;
 
 import static com.delphian.bush.config.schema.CurrencySchema.CURRENCY_SCHEMA;
 
-public class CurrencyConverter implements ConnectPOJOConverter<Currency> {
-    public static final CurrencyConverter INSTANCE = new CurrencyConverter();
+public class CurrencyMapper implements ConnectDataMapper<Currency> {
+    public static final CurrencyMapper INSTANCE = new CurrencyMapper();
 
     /**
      *
@@ -24,8 +24,7 @@ public class CurrencyConverter implements ConnectPOJOConverter<Currency> {
      * @inheritDoc
      */
     @Override
-    public Currency fromConnectData(Struct s) {
-        // simple conversion, but more complex types could throw errors
+    public Currency to(Struct s) {
         return Currency.builder()
                 .code(s.getString(CurrencySchema.CODE_FIELD))
                 .title(s.getString(CurrencySchema.TITLE_FIELD))
@@ -39,7 +38,7 @@ public class CurrencyConverter implements ConnectPOJOConverter<Currency> {
      * @inheritDoc
      */
     @Override
-    public Struct toConnectData(Currency c) {
+    public Struct to(Currency c) {
         Struct s = new Struct(getSchema());
         if (c == null) {
             return null;

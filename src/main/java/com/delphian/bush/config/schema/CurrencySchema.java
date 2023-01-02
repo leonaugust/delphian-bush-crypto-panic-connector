@@ -1,8 +1,8 @@
 package com.delphian.bush.config.schema;
 
 import com.delphian.bush.dto.Currency;
-import com.delphian.bush.util.converter.ConnectPOJOConverter;
-import com.delphian.bush.util.converter.CurrencyConverter;
+import com.delphian.bush.util.mapper.ConnectDataMapper;
+import com.delphian.bush.util.mapper.CurrencyMapper;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 
@@ -26,7 +26,7 @@ public class CurrencySchema {
             .optional()
             .build();
 
-    public static final ConnectPOJOConverter<Currency> CONVERTER = new CurrencyConverter();
+    public static final ConnectDataMapper<Currency> CONVERTER = new CurrencyMapper();
 
 
 

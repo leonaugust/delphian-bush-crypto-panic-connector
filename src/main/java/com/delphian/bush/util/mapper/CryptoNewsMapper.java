@@ -1,4 +1,4 @@
-package com.delphian.bush.util.converter;
+package com.delphian.bush.util.mapper;
 
 import com.delphian.bush.dto.CryptoNews;
 import com.delphian.bush.dto.Currency;
@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 
 import static com.delphian.bush.config.schema.CurrencySchema.CONVERTER;
 
-public class CryptoNewsConverter implements ConnectPOJOConverter<CryptoNews> {
-    public static final CryptoNewsConverter INSTANCE = new CryptoNewsConverter();
+public class CryptoNewsMapper implements ConnectDataMapper<CryptoNews> {
+    public static final CryptoNewsMapper INSTANCE = new CryptoNewsMapper();
 
     /**
      *
@@ -32,13 +32,13 @@ public class CryptoNewsConverter implements ConnectPOJOConverter<CryptoNews> {
      * @inheritDoc
      */
     @Override
-    public CryptoNews fromConnectData(Struct s) {
+    public CryptoNews to(Struct s) {
         List<Struct> currenciesStruct = (List<Struct>) s.get(CurrencySchema.SCHEMA_NAME);
-        List<Currency> currencies = currenciesStruct.stream().map(c -> CurrencyConverter.INSTANCE.fromConnectData(c))
+        List<Currency> currencies = currenciesStruct.stream().map(c -> CurrencyMapper.INSTANCE.to(c))
                 .collect(Collectors.toList());
 
         return CryptoNews.builder()
-                .source(NewsSourceConverter.INSTANCE.fromConnectData(s.getStruct(NewsSourceSchema.SCHEMA_NAME)))
+                .source(NewsSourceMapper.INSTANCE.to(s.getStruct(NewsSourceSchema.SCHEMA_NAME)))
                 .currencies(currencies)
                 .kind(s.getString(CryptoNewsSchema.KIND_FIELD))
                 .domain(s.getString(CryptoNewsSchema.DOMAIN_FIELD))
@@ -56,9 +56,9 @@ public class CryptoNewsConverter implements ConnectPOJOConverter<CryptoNews> {
      * @inheritDoc
      */
     @Override
-    public Struct toConnectData(CryptoNews cryptoNews) {
+    public Struct to(CryptoNews cryptoNews) {
         Struct struct = new Struct(CryptoNewsSchema.NEWS_SCHEMA)
-                .put(NewsSourceSchema.SCHEMA_NAME, NewsSourceConverter.INSTANCE.toConnectData(cryptoNews.getSource()))
+                .put(NewsSourceSchema.SCHEMA_NAME, NewsSourceMapper.INSTANCE.to(cryptoNews.getSource()))
                 .put(CryptoNewsSchema.KIND_FIELD, cryptoNews.getKind())
                 .put(CryptoNewsSchema.DOMAIN_FIELD, cryptoNews.getDomain())
                 .put(CryptoNewsSchema.TITLE_FIELD, cryptoNews.getTitle())
@@ -70,7 +70,7 @@ public class CryptoNewsConverter implements ConnectPOJOConverter<CryptoNews> {
 
         List<Currency> currencies = Optional.ofNullable(cryptoNews.getCurrencies()).orElse(new ArrayList<>());
         final List<Struct> items = currencies.stream()
-                .map(CONVERTER::toConnectData)
+                .map(CONVERTER::to)
                 .collect(Collectors.toList());
         struct.put(CurrencySchema.SCHEMA_NAME, items);
         return struct;
