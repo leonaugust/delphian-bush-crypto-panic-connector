@@ -42,6 +42,10 @@ public class CryptoPanicSourceConnectorConfig extends AbstractConfig {
         this(conf(), parsedConfig);
     }
 
+    /**
+     * Defines config properties of the connector.
+     * @return ConfigDef with defined properties
+     */
     public static ConfigDef conf() {
         return new ConfigDef()
                 .define(TOPIC_CONFIG, ConfigDef.Type.STRING, ConfigDef.Importance.HIGH, TOPIC_DOC)

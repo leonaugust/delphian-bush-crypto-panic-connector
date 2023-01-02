@@ -11,16 +11,28 @@ import java.util.*;
 public class CryptoPanicSourceConnector extends SourceConnector {
     private CryptoPanicSourceConnectorConfig config;
 
+    /**
+     *
+     * @inheritDoc
+     */
     @Override
     public void start(Map<String, String> props) {
         config = new CryptoPanicSourceConnectorConfig(props);
     }
 
+    /**
+     *
+     * @inheritDoc
+     */
     @Override
     public Class<? extends Task> taskClass() {
         return CryptoPanicSourceTask.class;
     }
 
+    /**
+     *
+     * @inheritDoc
+     */
     @Override
     public List<Map<String, String>> taskConfigs(int maxTasks) {
         ArrayList<Map<String, String>> configs = new ArrayList<>(1);
@@ -28,16 +40,28 @@ public class CryptoPanicSourceConnector extends SourceConnector {
         return configs;
     }
 
+    /**
+     *
+     * @inheritDoc
+     */
     @Override
     public void stop() {
         // Nothing to do since no background monitoring is required
     }
 
+    /**
+     *
+     * @inheritDoc
+     */
     @Override
     public ConfigDef config() {
         return CryptoPanicSourceConnectorConfig.conf();
     }
 
+    /**
+     *
+     * @inheritDoc
+     */
     @Override
     public String version() {
         return VersionUtil.getVersion();

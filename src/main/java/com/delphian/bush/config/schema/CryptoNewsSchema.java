@@ -40,6 +40,6 @@ public class CryptoNewsSchema {
     public static final Schema NEWS_KEY_SCHEMA = SchemaBuilder.struct()
             .version(FIRST_VERSION)
             .field(APPLICATION_CONFIG, Schema.STRING_SCHEMA)
-            .field(ID_FIELD, Schema.STRING_SCHEMA); // also add currency name. Should divide names, because news can have multiple news related to currencies
+            .field(ID_FIELD, Schema.STRING_SCHEMA);
 
 }

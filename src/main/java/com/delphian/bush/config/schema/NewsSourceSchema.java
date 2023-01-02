@@ -25,5 +25,4 @@ public class NewsSourceSchema {
             .optional()
             .build();
 
-
 }

@@ -10,11 +10,19 @@ import static com.delphian.bush.config.schema.CurrencySchema.CURRENCY_SCHEMA;
 public class CurrencyConverter implements ConnectPOJOConverter<Currency> {
     public static final CurrencyConverter INSTANCE = new CurrencyConverter();
 
+    /**
+     *
+     * @inheritDoc
+     */
     @Override
     public Schema getSchema() {
         return CURRENCY_SCHEMA;
     }
 
+    /**
+     *
+     * @inheritDoc
+     */
     @Override
     public Currency fromConnectData(Struct s) {
         // simple conversion, but more complex types could throw errors
@@ -26,6 +34,10 @@ public class CurrencyConverter implements ConnectPOJOConverter<Currency> {
                 .build();
     }
 
+    /**
+     *
+     * @inheritDoc
+     */
     @Override
     public Struct toConnectData(Currency c) {
         Struct s = new Struct(getSchema());

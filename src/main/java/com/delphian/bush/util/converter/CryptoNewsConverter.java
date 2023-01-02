@@ -18,11 +18,19 @@ import static com.delphian.bush.config.schema.CurrencySchema.CONVERTER;
 public class CryptoNewsConverter implements ConnectPOJOConverter<CryptoNews> {
     public static final CryptoNewsConverter INSTANCE = new CryptoNewsConverter();
 
+    /**
+     *
+     * @inheritDoc
+     */
     @Override
     public Schema getSchema() {
         return CryptoNewsSchema.NEWS_SCHEMA;
     }
 
+    /**
+     *
+     * @inheritDoc
+     */
     @Override
     public CryptoNews fromConnectData(Struct s) {
         List<Struct> currenciesStruct = (List<Struct>) s.get(CurrencySchema.SCHEMA_NAME);
@@ -43,6 +51,10 @@ public class CryptoNewsConverter implements ConnectPOJOConverter<CryptoNews> {
                 .build();
     }
 
+    /**
+     *
+     * @inheritDoc
+     */
     @Override
     public Struct toConnectData(CryptoNews cryptoNews) {
         Struct struct = new Struct(CryptoNewsSchema.NEWS_SCHEMA)

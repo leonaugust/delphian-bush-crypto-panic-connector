@@ -8,11 +8,19 @@ import org.apache.kafka.connect.data.Struct;
 public class NewsSourceConverter implements ConnectPOJOConverter<NewsSource> {
     public static final NewsSourceConverter INSTANCE = new NewsSourceConverter();
 
+    /**
+     *
+     * @inheritDoc
+     */
     @Override
     public Schema getSchema() {
         return NewsSourceSchema.SOURCE_SCHEMA;
     }
 
+    /**
+     *
+     * @inheritDoc
+     */
     @Override
     public NewsSource fromConnectData(Struct s) {
         // simple conversion, but more complex types could throw errors
@@ -24,6 +32,10 @@ public class NewsSourceConverter implements ConnectPOJOConverter<NewsSource> {
                 .build();
     }
 
+    /**
+     *
+     * @inheritDoc
+     */
     @Override
     public Struct toConnectData(NewsSource c) {
         Struct s = new Struct(getSchema());

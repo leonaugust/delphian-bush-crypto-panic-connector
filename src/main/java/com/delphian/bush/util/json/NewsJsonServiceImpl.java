@@ -22,6 +22,9 @@ public class NewsJsonServiceImpl {
         this.targetClass = CryptoNewsResponse.class;
     }
 
+    /**
+     * @return The news from test file <a href="file:../resources/mocked-news.json</a>
+     */
     public CryptoNewsResponse getFromJson() {
         try {
             return objectMapper.readValue(inputStream, targetClass);

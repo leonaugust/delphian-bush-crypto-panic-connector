@@ -11,13 +11,18 @@ public class ActiveProfileValidator implements ConfigDef.Validator{
     public static final String TEST_PROFILE = "test";
     public static final String PROD_PROFILE = "prod";
 
-    List<String> availableProfiles = Arrays.asList(TEST_PROFILE, PROD_PROFILE);
+    public static final List<String> AVAILABLE_PROFILES = Arrays.asList(TEST_PROFILE, PROD_PROFILE);
 
+    /**
+     * Ensures the selected profile is one of {AVAILABLE_PROFILES}
+     * @param name The name of the configuration
+     * @param value The value of the configuration
+     */
     @Override
     public void ensureValid(String name, Object value) {
         String profile = (String) value;
-        if (!availableProfiles.contains(profile)) {
-            throw new ConfigException(name, value, "Selected profile is invalid, available profiles "  + availableProfiles);
+        if (!AVAILABLE_PROFILES.contains(profile)) {
+            throw new ConfigException(name, value, "Selected profile is invalid, available profiles "  + AVAILABLE_PROFILES);
         }
 
     }

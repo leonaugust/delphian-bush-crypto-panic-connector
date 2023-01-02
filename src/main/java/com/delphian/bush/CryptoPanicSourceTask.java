@@ -23,6 +23,7 @@ import static java.time.LocalDateTime.now;
 @Slf4j
 public class CryptoPanicSourceTask extends SourceTask {
 
+    public static final int MAX_TIMEOUT_HOURS = 1;
     private LocalDateTime latestPoll = null;
 
     private boolean recentPageOnly;
@@ -31,6 +32,9 @@ public class CryptoPanicSourceTask extends SourceTask {
 
     private CryptoPanicService cryptoPanicService;
 
+    /**
+     * @inheritDoc
+     */
     @Override
     public String version() {
         return VersionUtil.getVersion();
@@ -38,6 +42,9 @@ public class CryptoPanicSourceTask extends SourceTask {
 
     private Long timeoutSeconds;
 
+    /**
+     * Sets the initial properties of the connector at the start.
+     */
     @Override
     public void start(Map<String, String> props) {
         config = new CryptoPanicSourceConnectorConfig(props);
@@ -45,10 +52,14 @@ public class CryptoPanicSourceTask extends SourceTask {
         timeoutSeconds = config.getLong(POLL_TIMEOUT_CONFIG);
     }
 
+    /**
+     * @return News records.
+     * @throws InterruptedException on sleep().
+     */
     @Override
     public List<SourceRecord> poll() throws InterruptedException {
         if (latestPoll == null || now().isAfter(latestPoll.plusSeconds(timeoutSeconds))) {
-            if (latestPoll == null || now().isAfter(latestPoll.plusHours(1))) {
+            if (latestPoll == null || now().isAfter(latestPoll.plusHours(MAX_TIMEOUT_HOURS))) {
                 recentPageOnly = false;
             }
         } else {
@@ -71,6 +82,10 @@ public class CryptoPanicSourceTask extends SourceTask {
         return records;
     }
 
+    /**
+     * @return Returns the latest offset from the
+     * context {@link org/apache/kafka/connect/source/SourceTask.java}
+     */
     private Optional<Long> getLatestSourceOffset() {
         Map<String, Object> offset = context.offsetStorageReader().offset(sourcePartition());
         if (offset != null) {
@@ -85,6 +100,11 @@ public class CryptoPanicSourceTask extends SourceTask {
         return Optional.empty();
     }
 
+    /**
+     *
+     * @param cryptoNews news to send.
+     * @return SourceRecord from news.
+     */
     private SourceRecord generateRecordFromNews(CryptoNews cryptoNews) {
         return new SourceRecord(
                 sourcePartition(),
@@ -99,28 +119,50 @@ public class CryptoPanicSourceTask extends SourceTask {
         );
     }
 
+    /**
+     *
+     * @return Partition to send.
+     */
     private Map<String, String> sourcePartition() {
         Map<String, String> partitionProperties = new HashMap<>();
         partitionProperties.put(APPLICATION_CONFIG, config.getString(APPLICATION_CONFIG));
         return partitionProperties;
     }
 
+    /**
+     *
+     * @param cryptoNews news
+     * @return the offset from news.
+     */
     private Map<String, String> sourceOffset(CryptoNews cryptoNews) {
         Map<String, String> map = new HashMap<>();
         map.put(CryptoNewsSchema.ID_FIELD, cryptoNews.getId());
         return map;
     }
 
+    /**
+     *
+     * @param news news
+     * @return Struct key from news
+     */
     private Struct buildRecordKey(CryptoNews news) {
         return new Struct(CryptoNewsSchema.NEWS_KEY_SCHEMA)
                 .put(APPLICATION_CONFIG, config.getString(APPLICATION_CONFIG))
                 .put(CryptoNewsSchema.ID_FIELD, news.getId());
     }
 
+    /**
+     *
+     * @param cryptoNews news
+     * @return Struct value from news.
+     */
     public Struct buildRecordValue(CryptoNews cryptoNews) {
         return CryptoNewsConverter.INSTANCE.toConnectData(cryptoNews);
     }
 
+    /**
+     * @inheritDoc
+     */
     @Override
     public void stop() {
 

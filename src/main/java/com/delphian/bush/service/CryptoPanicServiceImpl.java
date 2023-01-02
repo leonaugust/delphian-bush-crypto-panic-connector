@@ -32,6 +32,10 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
     public static final String PROD_PROFILE = "prod";
     public static final int START_PAGE = 1;
 
+    /**
+     *
+     * @inheritDoc
+     */
     @Override
     public List<CryptoNews> getFilteredNews(boolean recentPageOnly, Optional<Long> sourceOffset) {
         Boolean additionalDebugEnabled = config.getBoolean(DEBUG_ADDITIONAL_INFO);
@@ -59,6 +63,10 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
         return filtered;
     }
 
+    /**
+     *
+     * @inheritDoc
+     */
     @Override
     public List<CryptoNews> getNews(boolean recentPageOnly, Optional<Long> sourceOffset) {
         String profile = config.getString(PROFILE_ACTIVE_CONFIG);
@@ -69,7 +77,7 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
                 return getNewsFromApi(String.valueOf(START_PAGE), 0).getResults();
             }
 
-            if (!sourceOffset.isPresent()) { // First poll. Fetch all pages
+            if (!sourceOffset.isPresent()) {
                 return getAllPages();
             }
 
@@ -82,19 +90,19 @@ public class CryptoPanicServiceImpl implements CryptoPanicService {
         List<CryptoNews> cryptoNews = new ArrayList<>();
         long page = 1;
 
-        CryptoNewsResponse firstPage = getNewsFromApi(String.valueOf(page), 3);
-        cryptoNews.addAll(firstPage.getResults());
-        boolean containsLatestSourceOffset = firstPage.getResults().stream()
+        CryptoNewsResponse firstPageResponse = getNewsFromApi(String.valueOf(page), 3);
+        cryptoNews.addAll(firstPageResponse.getResults());
+        boolean containsLatestSourceOffset = firstPageResponse.getResults().stream()
                 .anyMatch(n -> sourceOffset.get().equals(Long.parseLong(n.getId())));
-        boolean hasNext = firstPage.getNext() != null || !firstPage.getNext().equals("null");
+        boolean hasNext = firstPageResponse.getNext() != null || !firstPageResponse.getNext().equals("null");
 
         while (!containsLatestSourceOffset && hasNext) {
             page++;
-            CryptoNewsResponse cryptoNewsNormal = getNewsFromApi(String.valueOf(page), 4);
-            cryptoNews.addAll(cryptoNewsNormal.getResults());
-            containsLatestSourceOffset = firstPage.getResults().stream()
+            CryptoNewsResponse newsResponse = getNewsFromApi(String.valueOf(page), 4);
+            cryptoNews.addAll(newsResponse.getResults());
+            containsLatestSourceOffset = newsResponse.getResults().stream()
                     .anyMatch(n -> sourceOffset.get().equals(Long.parseLong(n.getId())));
-            hasNext = cryptoNewsNormal.getNext() != null && !cryptoNewsNormal.getNext().equals("null");
+            hasNext = newsResponse.getNext() != null && !newsResponse.getNext().equals("null");
         }
 
         return cryptoNews;
