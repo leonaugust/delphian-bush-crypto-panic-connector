@@ -22,35 +22,27 @@
  * SOFTWARE.
  */
 
-package com.delphian.bush.config.schema;
+package com.delphian.bush.util.mapper;
 
-import com.delphian.bush.dto.Currency;
-import com.delphian.bush.util.mapper.ConnectDataMapper;
-import com.delphian.bush.util.mapper.CurrencyMapper;
 import org.apache.kafka.connect.data.Schema;
-import org.apache.kafka.connect.data.SchemaBuilder;
+import org.apache.kafka.connect.data.Struct;
 
-public class CurrencySchema {
+public interface ConnectDataMapper<T> {
 
+  /**
+   * @param s - Kafka Connect Struct
+   * @return POJO from struct.
+   */
+  T to(Struct s);
 
-  public static final String SCHEMA_NAME = Currency.class.getName();
+  /**
+   * @param t - POJO
+   * @return Kafka Connect Struct from POJO
+   */
+  Struct to(T t);
 
-  public static final String CODE_FIELD = "code";
-  public static final String TITLE_FIELD = "title";
-  public static final String SLUG_FIELD = "slug";
-  public static final String URL_FIELD = "url";
-
-  public static final Schema CURRENCY_SCHEMA = SchemaBuilder.struct()
-      .name(SCHEMA_NAME)
-      .doc("A currency item")
-      .field(CODE_FIELD, Schema.OPTIONAL_STRING_SCHEMA)
-      .field(TITLE_FIELD, Schema.OPTIONAL_STRING_SCHEMA)
-      .field(SLUG_FIELD, Schema.OPTIONAL_STRING_SCHEMA)
-      .field(URL_FIELD, Schema.OPTIONAL_STRING_SCHEMA)
-      .optional()
-      .build();
-
-  public static final ConnectDataMapper<Currency> CONVERTER = new CurrencyMapper();
-
-
+  /**
+   * @return Schema of the converter.
+   */
+  Schema getSchema();
 }

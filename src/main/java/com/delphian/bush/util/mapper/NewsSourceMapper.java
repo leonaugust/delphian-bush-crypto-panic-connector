@@ -22,67 +22,52 @@
  * SOFTWARE.
  */
 
-package com.delphian.bush;
+package com.delphian.bush.util.mapper;
 
-import com.delphian.bush.config.CryptoPanicSourceConnectorConfig;
-import com.delphian.bush.util.VersionUtil;
-import org.apache.kafka.common.config.ConfigDef;
-import org.apache.kafka.connect.connector.Task;
-import org.apache.kafka.connect.source.SourceConnector;
+import com.delphian.bush.dto.NewsSource;
+import com.delphian.bush.config.schema.NewsSourceSchema;
+import org.apache.kafka.connect.data.Schema;
+import org.apache.kafka.connect.data.Struct;
 
-import java.util.*;
+public class NewsSourceMapper implements ConnectDataMapper<NewsSource> {
 
-public class CryptoPanicSourceConnector extends SourceConnector {
-
-  private CryptoPanicSourceConnectorConfig config;
+  public static final NewsSourceMapper INSTANCE = new NewsSourceMapper();
 
   /**
    * @inheritDoc
    */
   @Override
-  public void start(Map<String, String> props) {
-    config = new CryptoPanicSourceConnectorConfig(props);
+  public Schema getSchema() {
+    return NewsSourceSchema.SOURCE_SCHEMA;
   }
 
   /**
    * @inheritDoc
    */
   @Override
-  public Class<? extends Task> taskClass() {
-    return CryptoPanicSourceTask.class;
+  public NewsSource to(Struct s) {
+    return NewsSource.builder()
+        .title(s.getString(NewsSourceSchema.TITLE_FIELD))
+        .region(s.getString(NewsSourceSchema.REGION_FIELD))
+        .domain(s.getString(NewsSourceSchema.DOMAIN_FIELD))
+        .path(s.getString(NewsSourceSchema.PATH_FIELD))
+        .build();
   }
 
   /**
    * @inheritDoc
    */
   @Override
-  public List<Map<String, String>> taskConfigs(int maxTasks) {
-    ArrayList<Map<String, String>> configs = new ArrayList<>(1);
-    configs.add(config.originalsStrings());
-    return configs;
-  }
+  public Struct to(NewsSource c) {
+    Struct s = new Struct(getSchema());
+    if (c == null) {
+      return null;
+    }
 
-  /**
-   * @inheritDoc
-   */
-  @Override
-  public void stop() {
-    // Nothing to do since no background monitoring is required
-  }
-
-  /**
-   * @inheritDoc
-   */
-  @Override
-  public ConfigDef config() {
-    return CryptoPanicSourceConnectorConfig.conf();
-  }
-
-  /**
-   * @inheritDoc
-   */
-  @Override
-  public String version() {
-    return VersionUtil.getVersion();
+    s.put(NewsSourceSchema.TITLE_FIELD, c.getTitle());
+    s.put(NewsSourceSchema.REGION_FIELD, c.getRegion());
+    s.put(NewsSourceSchema.DOMAIN_FIELD, c.getDomain());
+    s.put(NewsSourceSchema.PATH_FIELD, c.getPath());
+    return s;
   }
 }

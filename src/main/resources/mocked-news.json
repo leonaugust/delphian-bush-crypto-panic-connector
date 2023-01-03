@@ -1,6 +1,6 @@
 {
   "count": 200,
-  "next": "https://cryptopanic.com/api/v1/posts/?auth_token=6924fdfcc6c55f7d46e7d3e1d3ac6294a82938e4&public=true&page=2",
+  "next": "https://cryptopanic.com/api/v1/posts/...",
   "previous": null,
   "results": [
     {

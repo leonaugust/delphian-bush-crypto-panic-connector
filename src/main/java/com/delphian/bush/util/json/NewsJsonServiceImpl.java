@@ -1,3 +1,27 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2023 Leon Galushko
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package com.delphian.bush.util.json;
 
 import com.delphian.bush.dto.CryptoNewsResponse;
@@ -10,24 +34,28 @@ import java.io.InputStream;
 
 public class NewsJsonServiceImpl {
 
-    private final ObjectMapper objectMapper;
-    private final InputStream inputStream;
-    private final Class<CryptoNewsResponse> targetClass;
+  private final ObjectMapper objectMapper;
+  private final InputStream inputStream;
+  private final Class<CryptoNewsResponse> targetClass;
 
-    private static final Logger log = LoggerFactory.getLogger(NewsJsonServiceImpl.class);
+  private static final Logger log = LoggerFactory.getLogger(NewsJsonServiceImpl.class);
 
-    public NewsJsonServiceImpl(ObjectMapper objectMapper) throws IOException {
-        this.objectMapper = objectMapper;
-        this.inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("mocked-news.json");
-        this.targetClass = CryptoNewsResponse.class;
+  public NewsJsonServiceImpl(ObjectMapper objectMapper) throws IOException {
+    this.objectMapper = objectMapper;
+    this.inputStream = Thread.currentThread().getContextClassLoader()
+        .getResourceAsStream("mocked-news.json");
+    this.targetClass = CryptoNewsResponse.class;
+  }
+
+  /**
+   * @return The news from test file <a href="file:../resources/mocked-news.json</a>
+   */
+  public CryptoNewsResponse getFromJson() {
+    try {
+      return objectMapper.readValue(inputStream, targetClass);
+    } catch (IOException e) {
+      log.debug("Json test service encountered unexpected exception: {}", e.getMessage());
+      return null;
     }
-
-    public CryptoNewsResponse getFromJson() {
-        try {
-            return objectMapper.readValue(inputStream, targetClass);
-        } catch (IOException e) {
-            log.debug("Json test service encountered unexpected exception: {}", e.getMessage());
-            return null;
-        }
-    }
+  }
 }
