@@ -10,6 +10,13 @@ Reference documentation</a>
 
 ---
 
+## Contribute
+
+<a href="https://github.com/leonaugust/delphian-bush-crypto-panic-connector/blob/master/CONTRIBUTING.md" target="_blank">
+Contribution guidelines</a>
+
+---
+
 ## Reporting Issues
 
 Crypto Panic Source Connector uses GitHub's integrated issue tracking system to record bugs and
