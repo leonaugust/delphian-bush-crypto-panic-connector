@@ -18,7 +18,7 @@ guidelines:
 
 1. Fork the connector repository into your GitHub account.
 2. Add a remote to keep up with upstream changes.
-3. Create a feature branch to work in, push the changes.
+3. Create a feature branch from dev branch to work in, push the changes.
 4. Submit a pull-request to dev branch.
 
 - Give your pull-request a meaningful title. Add an issue number if this change is connected to
