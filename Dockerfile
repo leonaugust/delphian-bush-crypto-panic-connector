@@ -1,6 +1,4 @@
 FROM confluentinc/cp-kafka-connect:3.2.0
-#3.2.0
-#6.2.4
 
 WORKDIR /crypto-panic-connector
 COPY config config
