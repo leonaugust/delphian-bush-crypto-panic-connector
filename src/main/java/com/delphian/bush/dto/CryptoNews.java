@@ -38,26 +38,26 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CryptoNews {
 
-    private String kind;
+  private String kind;
 
-    private String domain;
+  private String domain;
 
-    private NewsSource source;
+  private NewsSource source;
 
-    private String title;
+  private String title;
 
-    @JsonProperty("published_at")
-    private String publishedAt;
+  @JsonProperty("published_at")
+  private String publishedAt;
 
-    private String slug;
+  private String slug;
 
-    private String id;
+  private String id;
 
-    private String url;
+  private String url;
 
-    @JsonProperty("created_at")
-    private String createdAt;
+  @JsonProperty("created_at")
+  private String createdAt;
 
-    private List<Currency> currencies;
+  private List<Currency> currencies;
 
 }

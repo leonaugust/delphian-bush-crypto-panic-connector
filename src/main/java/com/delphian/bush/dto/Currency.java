@@ -33,9 +33,9 @@ import lombok.*;
 @Builder
 public class Currency {
 
-    private String code;
-    private String title;
-    private String slug;
-    private String url;
+  private String code;
+  private String title;
+  private String slug;
+  private String url;
 
 }

@@ -32,9 +32,9 @@ import lombok.*;
 @Builder
 public class NewsSource {
 
-    private String title;
-    private String region;
-    private String domain;
-    private String path;
+  private String title;
+  private String region;
+  private String domain;
+  private String path;
 
 }

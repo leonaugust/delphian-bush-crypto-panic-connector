@@ -46,139 +46,140 @@ import static com.delphian.bush.config.CryptoPanicSourceConnectorConfig.*;
 @Slf4j
 public class CryptoPanicServiceImpl implements CryptoPanicService {
 
-    private final CryptoPanicSourceConnectorConfig config;
+  private final CryptoPanicSourceConnectorConfig config;
 
-    public CryptoPanicServiceImpl(CryptoPanicSourceConnectorConfig config) {
-        this.config = config;
+  public CryptoPanicServiceImpl(CryptoPanicSourceConnectorConfig config) {
+    this.config = config;
+  }
+
+  public static final String TEST_PROFILE = "test";
+  public static final String PROD_PROFILE = "prod";
+  public static final int START_PAGE = 1;
+
+  /**
+   * @inheritDoc
+   */
+  @Override
+  public List<CryptoNews> getFilteredNews(boolean recentPageOnly, Optional<Long> sourceOffset) {
+    Boolean additionalDebugEnabled = config.getBoolean(DEBUG_ADDITIONAL_INFO);
+    if (additionalDebugEnabled) {
+      log.info("Latest sourceOffset is not null, additional checking required");
     }
 
-    public static final String TEST_PROFILE = "test";
-    public static final String PROD_PROFILE = "prod";
-    public static final int START_PAGE = 1;
-
-    /**
-     *
-     * @inheritDoc
-     */
-    @Override
-    public List<CryptoNews> getFilteredNews(boolean recentPageOnly, Optional<Long> sourceOffset) {
-        Boolean additionalDebugEnabled = config.getBoolean(DEBUG_ADDITIONAL_INFO);
-        if (additionalDebugEnabled) {
-            log.info("Latest sourceOffset is not null, additional checking required");
-        }
-
-        List<CryptoNews> filtered = getNews(recentPageOnly, sourceOffset).stream()
-                .filter(n -> {
-                    if (sourceOffset.isPresent()) {
-                        if (additionalDebugEnabled) {
-                            log.info("newsId: [{}] is bigger than latestOffset: [{}], added news to result", Long.parseLong(n.getId()), sourceOffset.get());
-                        }
-                        return Long.parseLong(n.getId()) > sourceOffset.get();
-                    } else {
-                        if (additionalDebugEnabled) {
-                            log.info("Latest offset was null, added news to result");
-                        }
-                        return true;
-                    }
-                })
-                .sorted(Comparator.comparing(CryptoNews::getId))
-                .collect(Collectors.toList());
-        log.info("The amount of filtered news which offset is greater than sourceOffset: {}", filtered.size());
-        return filtered;
-    }
-
-    /**
-     *
-     * @inheritDoc
-     */
-    @Override
-    public List<CryptoNews> getNews(boolean recentPageOnly, Optional<Long> sourceOffset) {
-        String profile = config.getString(PROFILE_ACTIVE_CONFIG);
-        if (profile.equals(TEST_PROFILE)) {
-            return getMockedCryptoNews();
-        } else {
-            if (recentPageOnly) {
-                return getNewsFromApi(String.valueOf(START_PAGE), 0).getResults();
+    List<CryptoNews> filtered = getNews(recentPageOnly, sourceOffset).stream()
+        .filter(n -> {
+          if (sourceOffset.isPresent()) {
+            if (additionalDebugEnabled) {
+              log.info("newsId: [{}] is bigger than latestOffset: [{}], added news to result",
+                  Long.parseLong(n.getId()), sourceOffset.get());
             }
-
-            if (!sourceOffset.isPresent()) {
-                return getAllPages();
+            return Long.parseLong(n.getId()) > sourceOffset.get();
+          } else {
+            if (additionalDebugEnabled) {
+              log.info("Latest offset was null, added news to result");
             }
+            return true;
+          }
+        })
+        .sorted(Comparator.comparing(CryptoNews::getId))
+        .collect(Collectors.toList());
+    log.info("The amount of filtered news which offset is greater than sourceOffset: {}",
+        filtered.size());
+    return filtered;
+  }
 
-            return getPagesBeforeOffsetIncluding(sourceOffset);
-        }
+  /**
+   * @inheritDoc
+   */
+  @Override
+  public List<CryptoNews> getNews(boolean recentPageOnly, Optional<Long> sourceOffset) {
+    String profile = config.getString(PROFILE_ACTIVE_CONFIG);
+    if (profile.equals(TEST_PROFILE)) {
+      return getMockedCryptoNews();
+    } else {
+      if (recentPageOnly) {
+        return getNewsFromApi(String.valueOf(START_PAGE), 0).getResults();
+      }
+
+      if (!sourceOffset.isPresent()) {
+        return getAllPages();
+      }
+
+      return getPagesBeforeOffsetIncluding(sourceOffset);
+    }
+  }
+
+  @SuppressWarnings("all")
+  private List<CryptoNews> getPagesBeforeOffsetIncluding(Optional<Long> sourceOffset) {
+    List<CryptoNews> cryptoNews = new ArrayList<>();
+    long page = 1;
+
+    CryptoNewsResponse firstPageResponse = getNewsFromApi(String.valueOf(page), 3);
+    cryptoNews.addAll(firstPageResponse.getResults());
+    boolean containsLatestSourceOffset = firstPageResponse.getResults().stream()
+        .anyMatch(n -> sourceOffset.get().equals(Long.parseLong(n.getId())));
+    boolean hasNext =
+        firstPageResponse.getNext() != null || !firstPageResponse.getNext().equals("null");
+
+    while (!containsLatestSourceOffset && hasNext) {
+      page++;
+      CryptoNewsResponse newsResponse = getNewsFromApi(String.valueOf(page), 4);
+      cryptoNews.addAll(newsResponse.getResults());
+      containsLatestSourceOffset = newsResponse.getResults().stream()
+          .anyMatch(n -> sourceOffset.get().equals(Long.parseLong(n.getId())));
+      hasNext = newsResponse.getNext() != null && !newsResponse.getNext().equals("null");
     }
 
-    @SuppressWarnings("all")
-    private List<CryptoNews> getPagesBeforeOffsetIncluding(Optional<Long> sourceOffset) {
-        List<CryptoNews> cryptoNews = new ArrayList<>();
-        long page = 1;
+    return cryptoNews;
+  }
 
-        CryptoNewsResponse firstPageResponse = getNewsFromApi(String.valueOf(page), 3);
-        cryptoNews.addAll(firstPageResponse.getResults());
-        boolean containsLatestSourceOffset = firstPageResponse.getResults().stream()
-                .anyMatch(n -> sourceOffset.get().equals(Long.parseLong(n.getId())));
-        boolean hasNext = firstPageResponse.getNext() != null || !firstPageResponse.getNext().equals("null");
+  private List<CryptoNews> getAllPages() {
+    return IntStream.rangeClosed(START_PAGE, 10)
+        .mapToObj(page -> getNewsFromApi(String.valueOf(page), 4))
+        .map(CryptoNewsResponse::getResults)
+        .flatMap(List::stream)
+        .collect(Collectors.toList());
+  }
 
-        while (!containsLatestSourceOffset && hasNext) {
-            page++;
-            CryptoNewsResponse newsResponse = getNewsFromApi(String.valueOf(page), 4);
-            cryptoNews.addAll(newsResponse.getResults());
-            containsLatestSourceOffset = newsResponse.getResults().stream()
-                    .anyMatch(n -> sourceOffset.get().equals(Long.parseLong(n.getId())));
-            hasNext = newsResponse.getNext() != null && !newsResponse.getNext().equals("null");
-        }
+  private static List<CryptoNews> getMockedCryptoNews() {
+    log.info("Using test mocked news");
+    try {
+      log.info("Response from mocked-news file");
+      return new NewsJsonServiceImpl(new ObjectMapper()).getFromJson().getResults();
+    } catch (IOException e) {
+      log.error("Exception occurred: {}", e.getMessage());
+      throw new RuntimeException();
+    }
+  }
 
-        return cryptoNews;
+
+  private CryptoNewsResponse getNewsFromApi(String page, int timeoutSeconds) {
+    if (timeoutSeconds > 0) {
+      try {
+        TimeUnit.SECONDS.sleep(timeoutSeconds);
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
     }
 
-    private List<CryptoNews> getAllPages() {
-        return IntStream.rangeClosed(START_PAGE, 10)
-                .mapToObj(page -> getNewsFromApi(String.valueOf(page), 4))
-                .map(CryptoNewsResponse::getResults)
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
+    log.info("Getting news from API");
+    Map<String, Object> params = new HashMap<>();
+    params.put("auth_token", config.getString(CRYPTO_PANIC_KEY_CONFIG));
+    params.put("public", "true");
+    params.put("page", page);
+    String apiUrl = "https://cryptopanic.com/api/v1/posts/";
+    HttpResponse<JsonNode> response = Unirest.get(apiUrl)
+        .header("accept", "application/json")
+        .queryString(params)
+        .asJson();
+    if (response == null || response.getBody() == null) {
+      throw new RuntimeException("Api Returned incorrect response");
     }
 
-    private static List<CryptoNews> getMockedCryptoNews() {
-        log.info("Using test mocked news");
-        try {
-            log.info("Response from mocked-news file");
-            return new NewsJsonServiceImpl(new ObjectMapper()).getFromJson().getResults();
-        } catch (IOException e) {
-            log.error("Exception occurred: {}", e.getMessage());
-            throw new RuntimeException();
-        }
+    try {
+      return new ObjectMapper().readValue(response.getBody().toString(), CryptoNewsResponse.class);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e.getMessage());
     }
-
-
-    private CryptoNewsResponse getNewsFromApi(String page, int timeoutSeconds) {
-        if (timeoutSeconds > 0) {
-            try {
-                TimeUnit.SECONDS.sleep(timeoutSeconds);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        log.info("Getting news from API");
-        Map<String, Object> params = new HashMap<>();
-        params.put("auth_token", config.getString(CRYPTO_PANIC_KEY_CONFIG));
-        params.put("public", "true");
-        params.put("page", page);
-        String apiUrl = "https://cryptopanic.com/api/v1/posts/";
-        HttpResponse<JsonNode> response = Unirest.get(apiUrl)
-                .header("accept", "application/json")
-                .queryString(params)
-                .asJson();
-        if (response == null || response.getBody() == null) {
-            throw new RuntimeException("Api Returned incorrect response");
-        }
-
-        try {
-            return new ObjectMapper().readValue(response.getBody().toString(), CryptoNewsResponse.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
+  }
 }
